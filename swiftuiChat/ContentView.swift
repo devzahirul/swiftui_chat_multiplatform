@@ -6,16 +6,36 @@
 //
 
 import SwiftUI
+import ChatDomain
+import ChatPresentation
+import ChatUI
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+    @StateObject private var vm: ChatViewModel
+    private let currentUser = ChatUser(id: "me", displayName: "Me")
+
+    init() {
+        let repo = InMemoryChatRepository()
+        let container = ChatContainer(repo: repo)
+        // Create a demo chat synchronously via Task to avoid async init
+        var createdChatId = "demo"
+        let semaphore = DispatchSemaphore(value: 0)
+        Task {
+            let chat = try? await container.createChat(members: [currentUser])
+            createdChatId = chat?.id ?? createdChatId
+            semaphore.signal()
         }
-        .padding()
+        semaphore.wait()
+        _vm = StateObject(wrappedValue: ChatViewModel(
+            chatId: createdChatId,
+            currentUser: currentUser,
+            observeMessages: container.observeMessages,
+            sendMessage: container.sendMessage
+        ))
+    }
+
+    var body: some View {
+        ChatView(viewModel: vm, currentUserId: currentUser.id)
     }
 }
 
