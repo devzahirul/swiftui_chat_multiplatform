@@ -14,7 +14,8 @@ let package = Package(
     dependencies: [
         // Firebase via SPM — specify minimum versions as appropriate
         .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "10.0.0"),
-        .package(path: "../ChatCore")
+        .package(path: "../ChatCore"),
+        .package(url: "https://github.com/devzahirul/swift_hilt", from: "0.0.1")
     ],
     targets: [
         .target(
@@ -22,7 +23,8 @@ let package = Package(
             dependencies: [
                 .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
-                "ChatDomain"
+                "ChatDomain",
+                .product(name: "SwiftHilt", package: "swift_hilt")
             ]
         ),
         .testTarget(

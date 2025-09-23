@@ -2,6 +2,7 @@ import Foundation
 import FirebaseCore
 import FirebaseFirestore
 import ChatDomain
+import SwiftHilt
 
 public final class FirestoreChatRepository: ChatRepository {
     private let db: Firestore
@@ -51,5 +52,14 @@ public final class FirestoreChatRepository: ChatRepository {
         ]
         try await db.collection("chats").document(message.chatId)
             .collection("messages").document(message.id).setData(data)
+    }
+}
+
+public enum ChatFirebaseDIModule {
+    // Registers FirestoreChatRepository into the container for platforms supporting Firebase
+    public static func register(into c: Container) {
+        c.register(ChatRepository.self, lifetime: .scoped) { _ in
+            FirestoreChatRepository()
+        }
     }
 }

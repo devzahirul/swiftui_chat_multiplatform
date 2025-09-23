@@ -9,15 +9,17 @@ import SwiftUI
 import ChatDomain
 import ChatPresentation
 import ChatUI
+import SwiftHilt
 
 struct ContentView: View {
     private let currentUser = ChatUser(id: "me", displayName: "Me")
-    private let container: ChatContainer
+    private let container: Container
     @State private var chatId: String?
 
     init() {
-        let repo = InMemoryChatRepository()
-        self.container = ChatContainer(repo: repo)
+        let c = Container()
+        ChatDIModules.registerCore(into: c) { _ in InMemoryChatRepository() }
+        self.container = c
     }
 
     var body: some View {
@@ -36,7 +38,8 @@ struct ContentView: View {
         .onAppear {
             if chatId == nil {
                 Task {
-                    if let chat = try? await container.createChat(members: [currentUser]) {
+                    let create: CreateChatUseCase = container.resolve()
+                    if let chat = try? await create(members: [currentUser]) {
                         chatId = chat.id
                     }
                 }
@@ -47,7 +50,7 @@ struct ContentView: View {
 
 private struct ChatScreen: View {
     let chatId: String
-    let container: ChatContainer
+    let container: Container
     let currentUser: ChatUser
     @StateObject private var vm: ChatViewModel
 
@@ -55,12 +58,9 @@ private struct ChatScreen: View {
         self.chatId = chatId
         self.container = container
         self.currentUser = currentUser
-        _vm = StateObject(wrappedValue: ChatViewModel(
-            chatId: chatId,
-            currentUser: currentUser,
-            observeMessages: container.observeMessages,
-            sendMessage: container.sendMessage
-        ))
+        let observe: ObserveMessagesUseCase = container.resolve()
+        let send: SendMessageUseCase = container.resolve()
+        _vm = StateObject(wrappedValue: ChatViewModel(chatId: chatId, currentUser: currentUser, observeMessages: observe, sendMessage: send))
     }
 
     var body: some View {
