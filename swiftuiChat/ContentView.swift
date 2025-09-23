@@ -18,7 +18,8 @@ struct ContentView: View {
 
     init() {
         let c = Container()
-        ChatDIModules.registerCore(into: c) { _ in InMemoryChatRepository() }
+        useContainer(c)
+        loadChatDependencies()
         self.container = c
     }
 
