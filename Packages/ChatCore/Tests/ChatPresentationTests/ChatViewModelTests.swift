@@ -6,7 +6,7 @@ import ChatTestUtils
 final class ChatViewModelTests: XCTestCase {
     @MainActor
     func test_start_and_send_updates_messages() async throws {
-        let repo = await InMemoryChatRepository()
+    let repo = InMemoryChatRepository()
         let container = ChatContainer(repo: repo)
         let u1 = Fixtures.user(name: "Me")
         let u2 = Fixtures.user(name: "You")

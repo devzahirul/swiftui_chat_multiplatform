@@ -1,0 +1,15 @@
+{
+  "originHash" : "9e7cf8d632b3f860046bc69798f097c79116a61be8b2acffe664a2c246a9b1fa",
+  "pins" : [
+    {
+      "identity" : "swift_hilt",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/devzahirul/swift_hilt",
+      "state" : {
+        "branch" : "main",
+        "revision" : "0e5941c5ebbe82195d47de61165f1fa180a805e8"
+      }
+    }
+  ],
+  "version" : 3
+}

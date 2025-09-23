@@ -11,23 +11,52 @@ import ChatPresentation
 import ChatUI
 
 struct ContentView: View {
-    @StateObject private var vm: ChatViewModel
     private let currentUser = ChatUser(id: "me", displayName: "Me")
+    private let container: ChatContainer
+    @State private var chatId: String?
 
     init() {
         let repo = InMemoryChatRepository()
-        let container = ChatContainer(repo: repo)
-        // Create a demo chat synchronously via Task to avoid async init
-        var createdChatId = "demo"
-        let semaphore = DispatchSemaphore(value: 0)
-        Task {
-            let chat = try? await container.createChat(members: [currentUser])
-            createdChatId = chat?.id ?? createdChatId
-            semaphore.signal()
+        self.container = ChatContainer(repo: repo)
+    }
+
+    var body: some View {
+        Group {
+            if let id = chatId {
+                ChatScreen(chatId: id, container: container, currentUser: currentUser)
+            } else {
+                VStack(spacing: 12) {
+                    ProgressView()
+                    Text("Preparing chat…")
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
-        semaphore.wait()
+        .onAppear {
+            if chatId == nil {
+                Task {
+                    if let chat = try? await container.createChat(members: [currentUser]) {
+                        chatId = chat.id
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct ChatScreen: View {
+    let chatId: String
+    let container: ChatContainer
+    let currentUser: ChatUser
+    @StateObject private var vm: ChatViewModel
+
+    init(chatId: String, container: ChatContainer, currentUser: ChatUser) {
+        self.chatId = chatId
+        self.container = container
+        self.currentUser = currentUser
         _vm = StateObject(wrappedValue: ChatViewModel(
-            chatId: createdChatId,
+            chatId: chatId,
             currentUser: currentUser,
             observeMessages: container.observeMessages,
             sendMessage: container.sendMessage
@@ -36,6 +65,7 @@ struct ContentView: View {
 
     var body: some View {
         ChatView(viewModel: vm, currentUserId: currentUser.id)
+            .onAppear { vm.start() }
     }
 }
 
