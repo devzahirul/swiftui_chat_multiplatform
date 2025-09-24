@@ -30,8 +30,8 @@ public final class InMemoryPresenceRepository: PresenceRepository {
     public func presenceStream(userId: String) -> AsyncThrowingStream<Presence, Error> {
         AsyncThrowingStream<Presence, Error> { continuation in
             let id = ObjectIdentifier(continuation as AnyObject)
-            Task { await storage.add(userId: userId, id: id, continuation: continuation) }
-            continuation.onTermination = { _ in Task { await storage.remove(userId: userId, id: id) } }
+            Task { await self.storage.add(userId: userId, id: id, continuation: continuation) }
+            continuation.onTermination = { _ in Task { await self.storage.remove(userId: userId, id: id) } }
         }
     }
 
@@ -70,8 +70,8 @@ public final class InMemoryTypingRepository: TypingRepository {
     public func typingStream(chatId: String) -> AsyncThrowingStream<TypingIndicator, Error> {
         AsyncThrowingStream<TypingIndicator, Error> { continuation in
             let id = ObjectIdentifier(continuation as AnyObject)
-            Task { await storage.add(chatId: chatId, id: id, continuation: continuation) }
-            continuation.onTermination = { _ in Task { await storage.remove(chatId: chatId, id: id) } }
+            Task { await self.storage.add(chatId: chatId, id: id, continuation: continuation) }
+            continuation.onTermination = { _ in Task { await self.storage.remove(chatId: chatId, id: id) } }
         }
     }
 
