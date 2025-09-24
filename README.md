@@ -42,7 +42,7 @@ watchOS: Firestore is not supported. Use in‑memory or bridge via WatchConnecti
 - File > Add Packages… > Add Local > select `swiftuiChat/Packages/ChatCore` (and `ChatFirebase` if needed).
 - Link these products to your app target as needed:
   - Core chat: `ChatDomain`, `ChatPresentation`, `ChatUI`, `ChatData`
-  - Login (Sign in with Apple): `LoginDomain`, `LoginPresentation`, `LoginUI`, `LoginData`
+  - Login (Sign in with Apple): `LoginWithApple` (single product that includes domain, data, presentation, UI)
 
 2) Enable Sign in with Apple
 - App target > Signing & Capabilities > add “Sign in with Apple”.

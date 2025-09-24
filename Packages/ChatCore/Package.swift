@@ -15,11 +15,8 @@ let package = Package(
         .library(name: "ChatUI", targets: ["ChatUI"]),
         .library(name: "ChatTestUtils", targets: ["ChatTestUtils"]),
         .library(name: "ChatData", targets: ["ChatData"]), // Data layer (in-memory data source + repo impl)
-        // Auth (Sign in with Apple) — Clean Architecture layers
-        .library(name: "LoginDomain", targets: ["LoginDomain"]),
-        .library(name: "LoginPresentation", targets: ["LoginPresentation"]),
-        .library(name: "LoginUI", targets: ["LoginUI"]),
-        .library(name: "LoginData", targets: ["LoginData"]) 
+        // Auth (Sign in with Apple) — single product exposing all layers
+        .library(name: "LoginWithApple", targets: ["LoginDomain", "LoginData", "LoginPresentation", "LoginUI"]) 
     ],
     dependencies: [],
     targets: [
