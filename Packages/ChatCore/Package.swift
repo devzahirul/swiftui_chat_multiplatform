@@ -16,7 +16,7 @@ let package = Package(
         .library(name: "ChatTestUtils", targets: ["ChatTestUtils"]),
         .library(name: "ChatData", targets: ["ChatData"]), // Data layer (in-memory data source + repo impl)
         // Auth (Sign in with Apple) — single product exposing all layers
-        .library(name: "LoginWithApple", targets: ["LoginDomain", "LoginData", "LoginPresentation", "LoginUI"]) 
+        .library(name: "LoginWithApple", targets: ["LoginWithApple"]) 
     ],
     dependencies: [],
     targets: [
@@ -32,6 +32,8 @@ let package = Package(
         .target(name: "LoginData", dependencies: ["LoginDomain"], path: "Sources/LoginWithApple/LoginData"),
         .target(name: "LoginPresentation", dependencies: ["LoginDomain"], path: "Sources/LoginWithApple/LoginPresentation"),
         .target(name: "LoginUI", dependencies: ["LoginPresentation", "ChatDomain"], path: "Sources/LoginWithApple/LoginUI"),
+        // Umbrella target that re-exports the login modules
+        .target(name: "LoginWithApple", dependencies: ["LoginDomain", "LoginData", "LoginPresentation", "LoginUI"], path: "Sources/LoginWithApple"),
         .testTarget(name: "ChatDomainTests", dependencies: ["ChatDomain", "ChatTestUtils", "ChatData"]),
         .testTarget(name: "ChatPresentationTests", dependencies: ["ChatPresentation", "ChatTestUtils", "ChatData"])    ]
 )

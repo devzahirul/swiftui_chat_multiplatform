@@ -10,9 +10,7 @@ import ChatDomain
 import ChatPresentation
 import ChatUI
 import SwiftHilt
-import LoginPresentation
-import LoginUI
-import LoginData
+import LoginWithApple
 
 struct ContentView: View {
     @StateObject private var auth = AuthStore(repo: KeychainAuthRepository())
@@ -44,11 +42,11 @@ struct ContentView: View {
                     }
                 }
                 .sheet(isPresented: $showingProfile) {
-                    LoginUI.ProfileView()
+                    ProfileView()
                         .environmentObject(auth)
                 }
             } else {
-                LoginUI.LoginView()
+                LoginView()
             }
         }
         .environmentObject(auth)
