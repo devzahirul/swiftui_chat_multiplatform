@@ -21,7 +21,12 @@ struct ContentView: View {
     init() {
         let c = Container()
         useContainer(c)
-        loadChatDependencies()
+        // Ensure SwiftData container is created on the main actor before first navigation
+        if Thread.isMainThread {
+            loadChatDependencies()
+        } else {
+            DispatchQueue.main.sync { loadChatDependencies() }
+        }
     }
 
     var body: some View {

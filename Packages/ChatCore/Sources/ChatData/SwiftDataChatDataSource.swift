@@ -82,7 +82,7 @@ extension MessageModel {
 // Factory to create a container without exposing internal model types to clients.
 public enum SwiftDataSupport {
     @available(iOS 17, macOS 14, watchOS 10, *)
-    public static func makeContainer(inMemory: Bool = true) throws -> ModelContainer {
+    @MainActor public static func makeContainer(inMemory: Bool = true) throws -> ModelContainer {
         let config = ModelConfiguration(isStoredInMemoryOnly: inMemory)
         // Note: pass varargs, not an array
         return try ModelContainer(for: ChatModel.self, ChatMemberModel.self, MessageModel.self, configurations: config)
