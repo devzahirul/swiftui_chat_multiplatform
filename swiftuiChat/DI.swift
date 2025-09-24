@@ -12,6 +12,10 @@ import ChatData
 #if canImport(SwiftData)
 import SwiftData
 #endif
+// CloudKit data source (optional)
+#if canImport(ChatDataCloudKit)
+import ChatDataCloudKit
+#endif
 
 #if canImport(ChatDataFirebase)
 import ChatDataFirebase
@@ -30,6 +34,12 @@ func loadChatDependencies() {
             if ProcessInfo.processInfo.environment["CHAT_INMEMORY"] == "1" {
                 return ChatRepositoryImpl(dataSource: InMemoryChatDataSource()) as ChatRepository
             }
+            #if canImport(ChatDataCloudKit)
+            if ProcessInfo.processInfo.environment["CHAT_CLOUDKIT"] == "1" {
+                let containerID = ProcessInfo.processInfo.environment["CK_CONTAINER"]
+                return ChatRepositoryImpl(dataSource: CloudKitChatDataSource(containerID: containerID)) as ChatRepository
+            }
+            #endif
             #if canImport(ChatDataFirebase)
             if ProcessInfo.processInfo.environment["CHAT_FIREBASE"] == "1" {
                 // ChatFirebaseDIModule.register(into: defaultContainer) could be used instead

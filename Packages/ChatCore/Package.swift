@@ -15,6 +15,7 @@ let package = Package(
         .library(name: "ChatUI", targets: ["ChatUI"]),
         .library(name: "ChatTestUtils", targets: ["ChatTestUtils"]),
         .library(name: "ChatData", targets: ["ChatData"]), // Data layer (in-memory data source + repo impl)
+        .library(name: "ChatDataCloudKit", targets: ["ChatDataCloudKit"]), // CloudKit data source (optional)
         // Auth (Sign in with Apple) — single product exposing all layers
         .library(name: "LoginWithApple", targets: ["LoginWithApple"]) 
     ],
@@ -31,6 +32,7 @@ let package = Package(
         .target(name: "ChatUI", dependencies: ["ChatDomain", "ChatPresentation"]),
         .target(name: "ChatTestUtils", dependencies: ["ChatDomain"], path: "Sources/ChatTestUtils"),
         .target(name: "ChatData", dependencies: ["ChatDomain"], path: "Sources/ChatData"),
+        .target(name: "ChatDataCloudKit", dependencies: ["ChatDomain"], path: "Sources/ChatDataCloudKit"),
         // Login/Auth targets
         .target(name: "LoginDomain", dependencies: ["ChatDomain"], path: "Sources/LoginWithApple/LoginDomain"),
         .target(name: "LoginData", dependencies: ["LoginDomain"], path: "Sources/LoginWithApple/LoginData"),
