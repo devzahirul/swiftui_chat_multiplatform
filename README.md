@@ -223,6 +223,106 @@ Contract tests (for data providers):
   - ChatView: provide custom header actions, per‑message accessory, and input accessory.
   - Message bubbles: implement `MessageBubbleStyle` if you need a different look.
 
+## Recipes
+
+1) Custom message bubble style
+
+```swift
+import ChatUI
+
+struct BrandBubbleStyle: MessageBubbleStyle {
+  func makeBody(_ c: MessageBubbleConfiguration) -> some View {
+    Text(c.message.text ?? "")
+      .font(.system(size: 16, weight: .medium))
+      .foregroundColor(c.isOutgoing ? .white : .black)
+      .padding(.horizontal, 14).padding(.vertical, 10)
+      .background(
+        RoundedRectangle(cornerRadius: 14, style: .continuous)
+          .fill(c.isOutgoing ? Color.blue : Color(white: 0.92))
+      )
+  }
+}
+
+// Usage
+MessengerMessageRow(
+  message: message,
+  isOutgoing: message.senderId == currentUser.id,
+  isLastInGroup: isLast,
+  showTimestamp: showTime,
+  style: BrandBubbleStyle()
+)
+```
+
+2) Custom input style (buttons on the left/right)
+
+```swift
+import ChatUI
+
+struct AttachButton: View { var body: some View { Image(systemName: "paperclip").font(.title3) } }
+struct SendButton: View { let onSend: () -> Void; var body: some View { Button(action: onSend) { Image(systemName: "arrow.up.circle.fill").font(.title) } } }
+
+// Option A: Use the built-in style wrapper
+let inputStyle = MessengerInputFieldStyle(
+  leading: { AnyView(AttachButton()) },
+  trailing: { AnyView(SendButton(onSend: onSend)) }
+)
+inputStyle.makeBody(.init(text: $text, onSend: onSend, onTyping: onTyping))
+
+// Option B: Provide accessories directly to MessengerInputField
+MessengerInputField(
+  text: $text,
+  onSend: onSend,
+  onTyping: onTyping,
+  leadingAccessory: { AnyView(AttachButton()) },
+  trailingAccessory: { AnyView(SendButton(onSend: onSend)) }
+)
+```
+
+3) Presence in chat list header using AvatarStyle
+
+```swift
+import ChatUI
+
+struct StatusAvatarStyle: AvatarStyle {
+  func makeBody(_ c: AvatarConfiguration) -> some View {
+    ZStack {
+      Circle().fill(LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+      Text(c.initials.prefix(1).uppercased())
+        .font(.system(size: c.size * 0.6, weight: .semibold))
+        .foregroundColor(.white)
+    }
+    .frame(width: c.size, height: c.size)
+    .overlay(alignment: .bottomTrailing) {
+      if c.isOnline { Circle().fill(Color.green).frame(width: c.size * 0.28, height: c.size * 0.28).overlay(Circle().stroke(Color.white, lineWidth: 2)) }
+    }
+  }
+}
+
+struct Header: View {
+  let currentUser: ChatUser
+  @StateObject var presence = UserPresenceController() // streams isOnline
+  var body: some View {
+    HStack(spacing: 16) {
+      AvatarView(style: StatusAvatarStyle(), configuration: .init(initials: String(currentUser.displayName.prefix(1)), size: 24, isOnline: presence.isOnline))
+      Text("Chats").font(MessengerTheme.Typography.headerTitle)
+      Spacer()
+    }
+    .onAppear { presence.start(userId: currentUser.id) }
+  }
+}
+
+// Pass it via MessengerChatListView headerContent slot
+MessengerChatListView(
+  viewModel: vm,
+  currentUser: user,
+  onChatSelected: { /* ... */ },
+  headerContent: { Header(currentUser: user) },
+  searchContent: { DefaultSearchBar() },
+  emptyState: { DefaultEmptyState() },
+  rowAccessory: { _ in DefaultRowAccessory() }
+)
+```
+
 ## Firebase (optional)
 1. Add `GoogleService-Info.plist` to iOS/macOS targets.
 2. Add local package `Packages/ChatFirebase` and link `ChatDataFirebase`.
