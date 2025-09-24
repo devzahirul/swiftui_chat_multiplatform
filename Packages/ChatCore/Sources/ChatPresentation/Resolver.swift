@@ -29,5 +29,12 @@ public enum ChatResolver {
         }
         return .init(chat: chat, presence: presence)
     }
-}
 
+    public static func makeEnvironmentFromRegistry() -> ChatEnvironment? {
+        guard let makeRepo = ChatCoreRegistry.makeRepository else { return nil }
+        let repo = makeRepo()
+        let presenceRepo = ChatCoreRegistry.makePresenceRepository?()
+        let typingRepo = ChatCoreRegistry.makeTypingRepository?()
+        return makeEnvironment(repo: repo, presenceRepo: presenceRepo, typingRepo: typingRepo)
+    }
+}

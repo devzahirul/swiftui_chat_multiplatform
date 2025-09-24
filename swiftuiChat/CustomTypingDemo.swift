@@ -4,14 +4,20 @@ import ChatPresentation
 import ChatUI
 import ChatData
 
-final class TypingPresenceController: ObservableObject {
+final class RealtimeController: ObservableObject {
     @Published var isTyping = false
+    @Published var isPeerOnline = false
     private let typingRepo = InMemoryTypingRepository()
-    private var task: Task<Void, Never>?
+    private let presenceRepo = InMemoryPresenceRepository()
+    private var typingTask: Task<Void, Never>?
+    private var presenceTask: Task<Void, Never>?
 
-    func start(chatId: String, currentUserId: String) {
-        task?.cancel()
-        task = Task { [weak self] in
+    func start(chat: Chat, currentUserId: String) {
+        let chatId = chat.id
+        let peerId = chat.memberIds.first { $0 != currentUserId }
+
+        typingTask?.cancel()
+        typingTask = Task { [weak self] in
             do {
                 for try await ind in typingRepo.typingStream(chatId: chatId) {
                     guard ind.userId != currentUserId else { continue }
@@ -19,13 +25,27 @@ final class TypingPresenceController: ObservableObject {
                 }
             } catch { /* ignore in demo */ }
         }
+
+        presenceTask?.cancel()
+        if let peerId {
+            presenceTask = Task { [weak self] in
+                do {
+                    for try await p in presenceRepo.presenceStream(userId: peerId) {
+                        await MainActor.run { self?.isPeerOnline = p.isOnline }
+                    }
+                } catch { /* ignore in demo */ }
+            }
+        }
+
+        // Mark current user online for demo
+        Task { try? await presenceRepo.setPresence(userId: currentUserId, isOnline: true) }
     }
 
     func setTyping(chatId: String, userId: String, isTyping: Bool) {
         Task { try? await typingRepo.setTyping(chatId: chatId, userId: userId, isTyping: isTyping) }
     }
 
-    deinit { task?.cancel() }
+    deinit { typingTask?.cancel(); presenceTask?.cancel() }
 }
 
 struct TypingDotsView: View {
@@ -44,18 +64,28 @@ struct TypingDotsView: View {
     }
 }
 
+struct PresenceBadgeView: View {
+    let isOnline: Bool
+    var body: some View {
+        HStack(spacing: 6) {
+            Circle().fill(isOnline ? Color.green : Color.gray).frame(width: 8, height: 8)
+            Text(isOnline ? "Active now" : "Offline").font(.footnote).foregroundColor(.secondary)
+        }
+    }
+}
+
 struct CustomChatScreen: View {
-    let chatId: String
+    let chat: Chat
     let currentUser: ChatUser
     @StateObject private var vm: ChatViewModel
-    @StateObject private var typing = TypingPresenceController()
+    @StateObject private var realtime = RealtimeController()
 
-    init(chatId: String, currentUser: ChatUser) {
-        self.chatId = chatId
+    init(chat: Chat, currentUser: ChatUser) {
+        self.chat = chat
         self.currentUser = currentUser
         let observe: ObserveMessagesUseCase = resolve()
         let send: SendMessageUseCase = resolve()
-        _vm = StateObject(wrappedValue: ChatViewModel(chatId: chatId, currentUser: currentUser, observeMessages: observe, sendMessage: send))
+        _vm = StateObject(wrappedValue: ChatViewModel(chatId: chat.id, currentUser: currentUser, observeMessages: observe, sendMessage: send))
     }
 
     var body: some View {
@@ -63,16 +93,15 @@ struct CustomChatScreen: View {
             viewModel: vm,
             currentUserId: currentUser.id,
             chatTitle: "Chat",
-            isOnline: false,
+            isOnline: realtime.isPeerOnline,
             headerLeading: { EmptyView() },
-            headerTrailing: { DefaultHeaderTrailing() },
+            headerTrailing: { PresenceBadgeView(isOnline: realtime.isPeerOnline) },
             messageAccessory: { _, isOutgoing in
-                if !isOutgoing && typing.isTyping { TypingDotsView().padding(.horizontal) } else { EmptyView() }
+                if !isOutgoing && realtime.isTyping { TypingDotsView().padding(.horizontal) } else { EmptyView() }
             },
             inputAccessory: { EmptyView() },
-            onTyping: { isTyping in typing.setTyping(chatId: chatId, userId: currentUser.id, isTyping: isTyping) }
+            onTyping: { isTyping in realtime.setTyping(chatId: chat.id, userId: currentUser.id, isTyping: isTyping) }
         )
-        .onAppear { typing.start(chatId: chatId, currentUserId: currentUser.id) }
+        .onAppear { realtime.start(chat: chat, currentUserId: currentUser.id) }
     }
 }
-

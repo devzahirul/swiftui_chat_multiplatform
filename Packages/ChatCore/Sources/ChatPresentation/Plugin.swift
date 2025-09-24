@@ -7,5 +7,6 @@ public protocol ChatDataPlugin {
 
 public enum ChatCoreRegistry {
     public static var makeRepository: (() -> ChatRepository)?
+    public static var makePresenceRepository: (() -> PresenceRepository)?
+    public static var makeTypingRepository: (() -> TypingRepository)?
 }
-
