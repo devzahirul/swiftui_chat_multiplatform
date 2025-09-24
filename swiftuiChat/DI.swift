@@ -21,6 +21,7 @@ import ChatDataFirebase
 /// By default uses InMemoryChatRepository for all platforms.
 /// You can switch to Firestore on iOS/macOS by linking ChatDataFirebase and
 /// calling ChatFirebaseDIModule.register(into:) after `useContainer`.
+@MainActor
 func loadChatDependencies() {
     // Repository binding
     install {
