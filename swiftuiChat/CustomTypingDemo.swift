@@ -4,6 +4,8 @@ import ChatPresentation
 import ChatUI
 import ChatData
 
+import SwiftHilt
+
 final class RealtimeController: ObservableObject {
     @Published var isTyping = false
     @Published var isPeerOnline = false
@@ -180,6 +182,10 @@ struct CustomChatScreen: View {
         let observe: ObserveMessagesUseCase = resolve()
         let send: SendMessageUseCase = resolve()
         _vm = StateObject(wrappedValue: ChatViewModel(chatId: chat.id, currentUser: currentUser, observeMessages: observe, sendMessage: send))
+    }
+
+    init(chatId: String, currentUser: ChatUser) {
+        self.init(chat: Chat(id: chatId, memberIds: [currentUser.id]), currentUser: currentUser)
     }
 
     var body: some View {

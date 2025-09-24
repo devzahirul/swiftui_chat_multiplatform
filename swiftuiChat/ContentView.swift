@@ -38,12 +38,10 @@ struct ContentView: View {
                         navigationPath.append(chat.id)
                     }
                     .navigationDestination(for: String.self) { chatId in
-                        if let chat = selectedChat, chat.id == chatId {
-                            CustomChatScreen(chat: chat, currentUser: user)
+                        CustomChatScreen(chatId: chatId, currentUser: user)
 #if canImport(UIKit)
-                                .navigationBarTitleDisplayMode(.inline)
+                            .navigationBarTitleDisplayMode(.inline)
 #endif
-                        }
                     }
                 }
                 .sheet(isPresented: $showingProfile) {
