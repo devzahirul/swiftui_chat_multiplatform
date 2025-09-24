@@ -51,3 +51,31 @@ public struct Chat: Identifiable, Equatable, Hashable, Codable {
         self.createdAt = createdAt
     }
 }
+
+// MARK: - Realtime Events (for presence/typing extensibility)
+
+public struct TypingIndicator: Equatable, Sendable, Codable {
+    public let chatId: String
+    public let userId: String
+    public let isTyping: Bool
+    public init(chatId: String, userId: String, isTyping: Bool) {
+        self.chatId = chatId
+        self.userId = userId
+        self.isTyping = isTyping
+    }
+}
+
+public struct Presence: Equatable, Sendable, Codable {
+    public let userId: String
+    public let isOnline: Bool
+    public init(userId: String, isOnline: Bool) {
+        self.userId = userId
+        self.isOnline = isOnline
+    }
+}
+
+public enum ChatEvent: Equatable, Sendable {
+    case message(Message)
+    case typing(TypingIndicator)
+    case presence(Presence)
+}

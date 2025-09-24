@@ -10,6 +10,8 @@ public struct MessengerInputField: View {
     let placeholder: String
     let onSend: () -> Void
     let onTyping: (Bool) -> Void
+    let leadingAccessory: (() -> AnyView)?
+    let trailingAccessory: (() -> AnyView)?
 
     @Environment(\.messengerTheme) private var theme
     @State private var isMultiline = false
@@ -19,12 +21,16 @@ public struct MessengerInputField: View {
         text: Binding<String>,
         placeholder: String = "Message",
         onSend: @escaping () -> Void,
-        onTyping: @escaping (Bool) -> Void = { _ in }
+        onTyping: @escaping (Bool) -> Void = { _ in },
+        leadingAccessory: (() -> AnyView)? = nil,
+        trailingAccessory: (() -> AnyView)? = nil
     ) {
         self._text = text
         self.placeholder = placeholder
         self.onSend = onSend
         self.onTyping = onTyping
+        self.leadingAccessory = leadingAccessory
+        self.trailingAccessory = trailingAccessory
     }
 
     public var body: some View {
@@ -34,14 +40,17 @@ public struct MessengerInputField: View {
                 .frame(height: 0.5)
 
             HStack(alignment: .bottom, spacing: 8) {
-                // Camera/Media button
-                Button(action: {}) {
-                    Image(systemName: "camera.fill")
-                        .font(.system(size: 20))
-                        .foregroundColor(theme.outgoing)
-                        .frame(width: 32, height: 32)
+                if let leadingAccessory { leadingAccessory() }
+                else {
+                    // Default camera/media button
+                    Button(action: {}) {
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(theme.outgoing)
+                            .frame(width: 32, height: 32)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
 
                 // Text input container
                 HStack(alignment: .bottom, spacing: 8) {
@@ -71,10 +80,13 @@ public struct MessengerInputField: View {
                     }
                 }
 
-                // Send button (appears when text is not empty)
-                if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    sendButton
-                        .transition(.scale.combined(with: .opacity))
+                if let trailingAccessory { trailingAccessory() }
+                else {
+                    // Send button (appears when text is not empty)
+                    if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        sendButton
+                            .transition(.scale.combined(with: .opacity))
+                    }
                 }
             }
             .padding(.horizontal, MessengerTheme.Spacing.defaultPadding)
