@@ -7,11 +7,15 @@ import UIKit
 import AppKit
 #endif
 
-public struct MessengerChatView: View {
+public struct MessengerChatView<HeaderLeading: View, HeaderTrailing: View, MessageAccessory: View, InputAccessory: View>: View {
     @ObservedObject var vm: ChatViewModel
     let currentUserId: String
     let chatTitle: String
     let isOnline: Bool
+    let headerLeading: () -> HeaderLeading
+    let headerTrailing: () -> HeaderTrailing
+    let messageAccessory: (Message, Bool) -> MessageAccessory
+    let inputAccessory: () -> InputAccessory
 
     @Environment(\.messengerTheme) private var theme
     @Environment(\.dismiss) private var dismiss
@@ -20,12 +24,20 @@ public struct MessengerChatView: View {
         viewModel: ChatViewModel,
         currentUserId: String,
         chatTitle: String = "Chat",
-        isOnline: Bool = false
+        isOnline: Bool = false,
+        @ViewBuilder headerLeading: @escaping () -> HeaderLeading,
+        @ViewBuilder headerTrailing: @escaping () -> HeaderTrailing,
+        @ViewBuilder messageAccessory: @escaping (Message, Bool) -> MessageAccessory,
+        @ViewBuilder inputAccessory: @escaping () -> InputAccessory
     ) {
         self.vm = viewModel
         self.currentUserId = currentUserId
         self.chatTitle = chatTitle
         self.isOnline = isOnline
+        self.headerLeading = headerLeading
+        self.headerTrailing = headerTrailing
+        self.messageAccessory = messageAccessory
+        self.inputAccessory = inputAccessory
     }
 
     public var body: some View {
@@ -34,6 +46,7 @@ public struct MessengerChatView: View {
 
             messagesContainer
 
+            inputAccessory()
             MessengerInputField(
                 text: $vm.draft,
                 onSend: {
@@ -65,6 +78,7 @@ public struct MessengerChatView: View {
                 .buttonStyle(.plain)
 
                 // Chat info
+                headerLeading()
                 HStack(spacing: 12) {
                     MessengerAvatar.medium(
                         initials: chatInitials,
@@ -97,14 +111,8 @@ public struct MessengerChatView: View {
                     // Navigate to chat info
                 }
 
-                // More options button
-                Button(action: {}) {
-                    Image(systemName: "info.circle")
-                        .font(.system(size: 20))
-                        .foregroundColor(theme.outgoing)
-                        .frame(width: 32, height: 32)
-                }
-                .buttonStyle(.plain)
+                // Trailing actions
+                headerTrailing()
             }
             .padding(.horizontal, MessengerTheme.Spacing.defaultPadding)
             .padding(.vertical, 8)
@@ -132,6 +140,9 @@ public struct MessengerChatView: View {
                                 showTimestamp: shouldShowTimestamp
                             )
                             .id(message.id)
+
+                            // Accessory below each message group item
+                            messageAccessory(message, message.senderId == currentUserId)
                         }
                     }
 
@@ -198,4 +209,36 @@ public struct MessengerChatView: View {
 }
 
 // Legacy ChatView for backward compatibility
-public typealias ChatView = MessengerChatView
+public typealias ChatView = MessengerChatView<EmptyView, DefaultHeaderTrailing, DefaultMessageAccessory, EmptyView>
+
+// Defaults for slots
+public struct DefaultHeaderTrailing: View {
+    @Environment(\.messengerTheme) private var theme
+    public init() {}
+    public var body: some View {
+        Button(action: {}) {
+            Image(systemName: "info.circle").font(.system(size: 20)).foregroundColor(theme.outgoing).frame(width: 32, height: 32)
+        }.buttonStyle(.plain)
+    }
+}
+
+public struct DefaultMessageAccessory: View {
+    public init() {}
+    public var body: some View { EmptyView() }
+}
+
+// Convenience init retaining old signature
+public extension MessengerChatView where HeaderLeading == EmptyView, HeaderTrailing == DefaultHeaderTrailing, MessageAccessory == DefaultMessageAccessory, InputAccessory == EmptyView {
+    init(viewModel: ChatViewModel, currentUserId: String, chatTitle: String = "Chat", isOnline: Bool = false) {
+        self.init(
+            viewModel: viewModel,
+            currentUserId: currentUserId,
+            chatTitle: chatTitle,
+            isOnline: isOnline,
+            headerLeading: { EmptyView() },
+            headerTrailing: { DefaultHeaderTrailing() },
+            messageAccessory: { _,_ in DefaultMessageAccessory() },
+            inputAccessory: { EmptyView() }
+        )
+    }
+}

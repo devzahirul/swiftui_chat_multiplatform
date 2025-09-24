@@ -1,6 +1,18 @@
 import SwiftUI
 import ChatDomain
 
+public struct MessageBubbleConfiguration {
+    public let message: Message
+    public let isOutgoing: Bool
+    public let showTail: Bool
+    public let showTimestamp: Bool
+}
+
+public protocol MessageBubbleStyle {
+    associatedtype Body: View
+    func makeBody(_ configuration: MessageBubbleConfiguration) -> Body
+}
+
 public struct MessengerMessageBubble: View {
     let message: Message
     let isOutgoing: Bool
@@ -128,30 +140,46 @@ public struct MessengerBubbleShape: Shape {
     }
 }
 
+public struct MessengerBubbleStyle: MessageBubbleStyle {
+    public init() {}
+    public func makeBody(_ configuration: MessageBubbleConfiguration) -> some View {
+        MessengerMessageBubble(
+            message: configuration.message,
+            isOutgoing: configuration.isOutgoing,
+            showTail: configuration.showTail,
+            showTimestamp: configuration.showTimestamp
+        )
+    }
+}
+
 // Legacy MessageRow for backward compatibility
 public typealias MessageRow = MessengerMessageRow
 
-public struct MessengerMessageRow: View {
+public struct MessengerMessageRow<Style: MessageBubbleStyle>: View {
     let message: Message
     let isOutgoing: Bool
     let isLastInGroup: Bool
     let showTimestamp: Bool
+    let style: Style
 
-    public init(message: Message, isOutgoing: Bool, isLastInGroup: Bool = true, showTimestamp: Bool = false) {
+    public init(message: Message, isOutgoing: Bool, isLastInGroup: Bool = true, showTimestamp: Bool = false, style: Style) {
         self.message = message
         self.isOutgoing = isOutgoing
         self.isLastInGroup = isLastInGroup
         self.showTimestamp = showTimestamp
+        self.style = style
     }
 
     public var body: some View {
-        MessengerMessageBubble(
-            message: message,
-            isOutgoing: isOutgoing,
-            showTail: isLastInGroup,
-            showTimestamp: showTimestamp
-        )
-        .padding(.horizontal, MessengerTheme.Spacing.defaultPadding)
-        .padding(.vertical, 1)
+        style.makeBody(MessageBubbleConfiguration(message: message, isOutgoing: isOutgoing, showTail: isLastInGroup, showTimestamp: showTimestamp))
+            .padding(.horizontal, MessengerTheme.Spacing.defaultPadding)
+            .padding(.vertical, 1)
+    }
+}
+
+// Backward‑compatible default row
+public extension MessengerMessageRow where Style == MessengerBubbleStyle {
+    init(message: Message, isOutgoing: Bool, isLastInGroup: Bool = true, showTimestamp: Bool = false) {
+        self.init(message: message, isOutgoing: isOutgoing, isLastInGroup: isLastInGroup, showTimestamp: showTimestamp, style: MessengerBubbleStyle())
     }
 }
