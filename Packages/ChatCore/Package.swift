@@ -18,11 +18,15 @@ let package = Package(
         // Auth (Sign in with Apple) — single product exposing all layers
         .library(name: "LoginWithApple", targets: ["LoginWithApple"]) 
     ],
-    dependencies: [],
+    dependencies: [
+        // Optional DI support via SwiftHilt
+        .package(url: "https://github.com/devzahirul/swift_hilt", branch: "main")
+    ],
     targets: [
         .target(name: "ChatDomain", dependencies: []),
         .target(name: "ChatPresentation", dependencies: [
-            "ChatDomain"
+            "ChatDomain",
+            .product(name: "SwiftHilt", package: "swift_hilt")
         ]),
         .target(name: "ChatUI", dependencies: ["ChatDomain", "ChatPresentation"]),
         .target(name: "ChatTestUtils", dependencies: ["ChatDomain"], path: "Sources/ChatTestUtils"),
