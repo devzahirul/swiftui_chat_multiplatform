@@ -39,6 +39,7 @@ watchOS: Firestore is not supported. Use in‑memory or bridge via WatchConnecti
   - ChatList slots: `headerContent`, `searchContent`, `emptyState`, `rowAccessory`
   - ChatView slots: `headerLeading`, `headerTrailing`, `messageAccessory`, `inputAccessory`
   - Message bubbles: `MessageBubbleStyle` protocol (default `MessengerBubbleStyle`)
+  - Avatar/Input styles: `AvatarStyle`, `InputFieldStyle` (default Messenger styles)
   - Input field accessories: leading/trailing closures
 - Header customization
   - `MessengerChatListView` exposes `onHeaderAvatarTapped` so host apps decide what to show (Profile, Settings, etc.)
@@ -121,6 +122,57 @@ struct ChatShell: View {
 }
 ```
 
+## Slot & Style Examples
+
+```swift
+// 1) Custom header in the chat list
+MessengerChatListView(
+  viewModel: vm,
+  currentUser: user,
+  onChatSelected: { /* ... */ },
+  onNewChatTapped: { /* ... */ },
+  onHeaderAvatarTapped: { showProfile = true },
+  headerContent: { CustomHeaderView(currentUser: user, onNewChatTapped: nil, onHeaderAvatarTapped: { showProfile = true }) },
+  searchContent: { DefaultSearchBar() },
+  emptyState: { DefaultEmptyState() },
+  rowAccessory: { _ in DefaultRowAccessory() }
+)
+
+// 2) Per‑message accessory (e.g., typing / read receipts)
+MessengerChatView(
+  viewModel: chatVM,
+  currentUserId: user.id,
+  messageAccessory: { message, isOutgoing in
+    if !isOutgoing && isTyping { TypingDotsView() } else { EmptyView() }
+  },
+  headerLeading: { EmptyView() },
+  headerTrailing: { DefaultHeaderTrailing() },
+  inputAccessory: { EmptyView() },
+  onTyping: { isTyping in typingRepo.setTyping(chatId: chatId, userId: user.id, isTyping: isTyping) }
+)
+
+// 3) Swap bubble / avatar / input styles
+struct BrandBubbleStyle: MessageBubbleStyle { /* ... */ }
+AvatarView(style: MessengerAvatarStyle(), configuration: .init(initials: "A", size: 40, isOnline: true))
+MessengerInputFieldStyle(leading: { AnyView(AttachButton()) }, trailing: { AnyView(SendButton()) })
+```
+
+## Resolver & Plugin Registry (No DI Framework)
+
+```swift
+// Plain resolver
+let repo = ChatRepositoryImpl(dataSource: InMemoryChatDataSource())
+let presence = InMemoryPresenceRepository()
+let typing = InMemoryTypingRepository()
+let env = ChatResolver.makeEnvironment(repo: repo, presenceRepo: presence, typingRepo: typing)
+
+// Or use registry factories (e.g., in App startup)
+ChatCoreRegistry.makeRepository = { ChatRepositoryImpl(dataSource: InMemoryChatDataSource()) }
+ChatCoreRegistry.makePresenceRepository = { InMemoryPresenceRepository() }
+ChatCoreRegistry.makeTypingRepository = { InMemoryTypingRepository() }
+let env2 = ChatResolver.makeEnvironmentFromRegistry()
+```
+
 To open Profile on header tap, pass a closure to `MessengerChatListView`:
 
 ```swift
@@ -141,6 +193,10 @@ MessengerChatListView(
 - Build app: `xcodebuild -project swiftuiChat.xcodeproj -scheme swiftuiChat -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15' build`
 - Build core package: `swift build --package-path Packages/ChatCore`
 - Test core package: `swift test --package-path Packages/ChatCore`
+
+Contract tests (for data providers):
+- Chat repository: `ChatRepositoryContractTests`
+- Presence/typing: `PresenceTypingContractTests`
 
 ## Notes for macOS
 - `LoginView` guards `AuthenticationServices` at compile time; Sign in with Apple requires iCloud session.
