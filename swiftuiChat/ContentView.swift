@@ -97,7 +97,10 @@ private struct ChatListScreen: View {
             onNewChatTapped: {
                 Task {
                     let create: CreateChatUseCase = resolve()
+                    let send: SendMessageUseCase = resolve()
                     if let newChat = try? await create(members: [currentUser]) {
+                        // Seed a welcome message so the chat view isn't empty on first open
+                        try? await send(chatId: newChat.id, sender: currentUser, text: "Say hi 👋")
                         onChatSelected(newChat)
                         await viewModel.loadChats()
                     }
