@@ -263,6 +263,7 @@ public struct DefaultHeader: View {
 public struct DefaultSearchBar: View {
     @Environment(\.messengerTheme) private var theme
     @State private var text: String = ""
+    public init() {}
 
     public var body: some View {
         HStack(spacing: 10) {
@@ -292,4 +293,4 @@ public struct DefaultEmptyState: View {
     }
 }
 
-public struct DefaultRowAccessory: View { public init() {} public var body: some View { EmptyView() } }
+public struct DefaultRowAccessory: View { public init() {}; public var body: some View { EmptyView() } }
