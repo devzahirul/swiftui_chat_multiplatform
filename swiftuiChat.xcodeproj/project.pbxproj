@@ -13,6 +13,11 @@
 		0B41160D2E82974C0030127C /* ChatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 0B41160C2E82974C0030127C /* ChatUI */; };
 		0B4116122E82974C0030127C /* ChatData in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4116112E82974C0030127C /* ChatData */; };
 		0B4116272E82974C0030127C /* LoginWithApple in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4116262E82974C0030127C /* LoginWithApple */; };
+		0BE106C02E83F59C0017FE13 /* ChatData in Frameworks */ = {isa = PBXBuildFile; productRef = 0BE106BF2E83F59C0017FE13 /* ChatData */; };
+		0BE106C22E83F59C0017FE13 /* ChatDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 0BE106C12E83F59C0017FE13 /* ChatDomain */; };
+		0BE106C42E83F59C0017FE13 /* ChatPresentation in Frameworks */ = {isa = PBXBuildFile; productRef = 0BE106C32E83F59C0017FE13 /* ChatPresentation */; };
+		0BE106C62E83F59C0017FE13 /* ChatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 0BE106C52E83F59C0017FE13 /* ChatUI */; };
+		0BE106C82E83F59C0017FE13 /* LoginWithApple in Frameworks */ = {isa = PBXBuildFile; productRef = 0BE106C72E83F59C0017FE13 /* LoginWithApple */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,10 +37,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0BE106C62E83F59C0017FE13 /* ChatUI in Frameworks */,
 				0B4116272E82974C0030127C /* LoginWithApple in Frameworks */,
+				0BE106C42E83F59C0017FE13 /* ChatPresentation in Frameworks */,
+				0BE106C82E83F59C0017FE13 /* LoginWithApple in Frameworks */,
 				0B4116122E82974C0030127C /* ChatData in Frameworks */,
+				0BE106C22E83F59C0017FE13 /* ChatDomain in Frameworks */,
 				0B41160D2E82974C0030127C /* ChatUI in Frameworks */,
 				0B4116092E82974C0030127C /* ChatDomain in Frameworks */,
+				0BE106C02E83F59C0017FE13 /* ChatData in Frameworks */,
 				0B41160B2E82974C0030127C /* ChatPresentation in Frameworks */,
 				0B4116062E8297230030127C /* SwiftHilt in Frameworks */,
 			);
@@ -86,6 +96,11 @@
 				0B41160C2E82974C0030127C /* ChatUI */,
 				0B4116112E82974C0030127C /* ChatData */,
 				0B4116262E82974C0030127C /* LoginWithApple */,
+				0BE106BF2E83F59C0017FE13 /* ChatData */,
+				0BE106C12E83F59C0017FE13 /* ChatDomain */,
+				0BE106C32E83F59C0017FE13 /* ChatPresentation */,
+				0BE106C52E83F59C0017FE13 /* ChatUI */,
+				0BE106C72E83F59C0017FE13 /* LoginWithApple */,
 			);
 			productName = swiftuiChat;
 			productReference = 0BFE366C2E82922B00D54D6E /* swiftuiChat.app */;
@@ -117,6 +132,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				0B4116042E8297230030127C /* XCRemoteSwiftPackageReference "swift_hilt" */,
+				0BE106BE2E83F59C0017FE13 /* XCLocalSwiftPackageReference "Packages/ChatCore" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0BFE366D2E82922B00D54D6E /* Products */;
@@ -366,6 +382,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		0BE106BE2E83F59C0017FE13 /* XCLocalSwiftPackageReference "Packages/ChatCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/ChatCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		0B4116042E8297230030127C /* XCRemoteSwiftPackageReference "swift_hilt" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -400,6 +423,26 @@
 			productName = ChatData;
 		};
 		0B4116262E82974C0030127C /* LoginWithApple */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LoginWithApple;
+		};
+		0BE106BF2E83F59C0017FE13 /* ChatData */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ChatData;
+		};
+		0BE106C12E83F59C0017FE13 /* ChatDomain */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ChatDomain;
+		};
+		0BE106C32E83F59C0017FE13 /* ChatPresentation */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ChatPresentation;
+		};
+		0BE106C52E83F59C0017FE13 /* ChatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ChatUI;
+		};
+		0BE106C72E83F59C0017FE13 /* LoginWithApple */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = LoginWithApple;
 		};
