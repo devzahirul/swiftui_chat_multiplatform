@@ -90,7 +90,7 @@ private struct ChatListScreen: View {
     }
 
     var body: some View {
-        ChatUI.ChatListView(
+        ChatUI.MessengerChatListView(
             viewModel: viewModel,
             currentUser: currentUser,
             onChatSelected: onChatSelected,
@@ -103,7 +103,11 @@ private struct ChatListScreen: View {
                     }
                 }
             },
-            onHeaderAvatarTapped: onAvatarTapped
+            onHeaderAvatarTapped: onAvatarTapped,
+            headerContent: { CustomHeaderView(currentUser: currentUser, onNewChatTapped: nil, onHeaderAvatarTapped: onAvatarTapped) },
+            searchContent: { ChatUI.DefaultSearchBar() },
+            emptyState: { ChatUI.DefaultEmptyState() },
+            rowAccessory: { _ in ChatUI.DefaultRowAccessory() }
         )
         .navigationTitle("")
 #if canImport(UIKit)

@@ -74,6 +74,100 @@ struct PresenceBadgeView: View {
     }
 }
 
+// MARK: - Custom AvatarStyle for header
+import ChatUI // ensure styles are available
+
+struct GradientInitialAvatarStyle: AvatarStyle {
+    func makeBody(_ configuration: AvatarConfiguration) -> some View {
+        ZStack {
+            Circle()
+                .fill(LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+            Text(configuration.initials.prefix(1).uppercased())
+                .font(.system(size: configuration.size * 0.6, weight: .semibold))
+                .foregroundColor(.white)
+        }
+        .frame(width: configuration.size, height: configuration.size)
+        .overlay(alignment: .bottomTrailing) {
+            if configuration.isOnline {
+                Circle().fill(Color.green).frame(width: configuration.size * 0.28, height: configuration.size * 0.28)
+                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                    .offset(x: configuration.size * 0.06, y: configuration.size * 0.06)
+            }
+        }
+    }
+}
+
+final class UserPresenceController: ObservableObject {
+    @Published var isOnline = false
+    private let presenceRepo = InMemoryPresenceRepository()
+    private var task: Task<Void, Never>?
+
+    func start(userId: String) {
+        task?.cancel()
+        task = Task { [weak self] in
+            do {
+                for try await p in presenceRepo.presenceStream(userId: userId) {
+                    await MainActor.run { self?.isOnline = p.isOnline }
+                }
+            } catch { }
+        }
+        // Mark as online for demo
+        Task { try? await presenceRepo.setPresence(userId: userId, isOnline: true) }
+    }
+
+    deinit { task?.cancel() }
+}
+
+struct CustomHeaderView: View {
+    let currentUser: ChatUser
+    let onNewChatTapped: (() -> Void)?
+    let onHeaderAvatarTapped: (() -> Void)?
+    @StateObject private var presence = UserPresenceController()
+
+    var body: some View {
+        HStack(spacing: 16) {
+            Button(action: { onHeaderAvatarTapped?() }) {
+                AvatarView(
+                    style: GradientInitialAvatarStyle(),
+                    configuration: .init(
+                        imageURL: nil,
+                        initials: String(currentUser.displayName.prefix(1)),
+                        size: 24,
+                        isOnline: presence.isOnline
+                    )
+                )
+            }
+            .buttonStyle(.plain)
+
+            Text("Chats")
+                .font(MessengerTheme.Typography.headerTitle)
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Button(action: {}) {
+                Image(systemName: "camera")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundColor(.primary)
+                    .frame(width: 36, height: 36)
+                    .background(Circle().fill(Color(white: 0.95)))
+            }
+            .buttonStyle(.plain)
+
+            Button(action: { onNewChatTapped?() }) {
+                Image(systemName: "square.and.pencil")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundColor(.primary)
+                    .frame(width: 36, height: 36)
+                    .background(Circle().fill(Color(white: 0.95)))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, MessengerTheme.Spacing.defaultPadding)
+        .padding(.vertical, 12)
+        .onAppear { presence.start(userId: currentUser.id) }
+    }
+}
+
 struct CustomChatScreen: View {
     let chat: Chat
     let currentUser: ChatUser
