@@ -1,103 +1,135 @@
 # swiftuiChat – Multiplatform Clean Architecture Chat App
 
-This workspace includes a production-grade, modular chat architecture for iOS, iPadOS, macOS, and watchOS.
+This workspace contains a modular, production‑ready chat system for iOS, iPadOS, macOS, and watchOS.
 
-Highlights:
-- Clean Architecture with separate Domain, Presentation, UI, and Data (Firebase) layers
-- Swift Package modules for easy integration into other apps
-- Test-driven (XCTest) with in-memory repository for fast unit tests
-- Swift Concurrency (async/await, AsyncSequence) driven APIs
-- Highly customizable UI with themes and styling hooks
-- GitHub Actions CI for build and test
+- Clean Architecture: Domain, Data, Presentation, UI
+- Swift Packages with composable features
+- Swift Concurrency (async/await, AsyncSequence)
+- XCTest coverage with fast in‑memory data source
+- Highly customizable UI (themes, header actions)
 
-## Modules
+## Packages and Modules
 
 - ChatCore (Swift Package)
-  - ChatDomain: Entities, repository protocols, use cases
-  - ChatPresentation: View models, DI container
-  - ChatUI: SwiftUI views, themes, simple chat screen
-  - ChatTestUtils: Test data builders and mocks
-  - ChatData: Data layer (DataSource protocols, repository impl, in‑memory and SwiftData data sources)
+  - ChatDomain — Entities, repository protocols, use cases
+  - ChatPresentation — View models, DI helpers (SwiftHilt)
+  - ChatUI — SwiftUI components (Messenger‑style list, chat screen, theming)
+  - ChatData — Data layer (in‑memory + SwiftData data sources, repository impl)
+  - ChatTestUtils — Test builders/mocks
+  - LoginWithApple (feature folder)
+    - LoginDomain — `AuthRepository` abstraction
+    - LoginData — `KeychainAuthRepository` (Keychain + UserDefaults)
+    - LoginPresentation — `AuthStore` (observable auth state)
+    - LoginUI — `LoginView` (Sign in with Apple), `ProfileView` (name/email), clipboard util
 - ChatFirebase (Swift Package)
-  - ChatDataFirebase: Firestore-based repository for iOS and macOS
+  - ChatDataFirebase — Firestore repository (iOS/macOS)
 
-watchOS note: Firebase Firestore is not supported on watchOS. The watch app can use the ChatCore layers and either:
-- rely on an in-memory/local repository, or
-- communicate with the iOS app via WatchConnectivity where iOS performs Firebase operations.
+watchOS: Firestore is not supported. Use in‑memory or bridge via WatchConnectivity.
 
-## Run locally (no Firebase required)
-The app uses an in-memory chat repository by default so you can build and run immediately after adding the ChatCore package to the Xcode project.
+## Features
 
-### Add local package to Xcode
-- File > Add Packages… > Add Local > select `swiftuiChat/Packages/ChatCore`.
-- Add `ChatDomain`, `ChatPresentation`, `ChatUI`, and `ChatData` to the `swiftuiChat` app target.
+- Chat list, message view, input, avatars, themes (ChatUI)
+- Sign in with Apple (LoginUI)
+  - Keychain‑backed session, persisted display name + email
+  - Packaged `LoginView` and `ProfileView`
+  - Platform guards for macOS/watchOS
+- Header customization
+  - `MessengerChatListView` exposes `onHeaderAvatarTapped` so host apps decide what to show (Profile, Settings, etc.)
 
-### Use SwiftData (optional)
-- Requires iOS 17+/macOS 14+.
-- Enable SwiftData data source: set `CHAT_SWIFTDATA=1`.
-- Choose store type:
-  - In-memory (ephemeral): set `CHAT_SWIFTDATA_INMEMORY=1`
-  - On-disk (persistent, default when not set): omit the flag
-- Example (CLI):
-  - `CHAT_SWIFTDATA=1 CHAT_SWIFTDATA_INMEMORY=1 xcodebuild -project swiftuiChat.xcodeproj -scheme swiftuiChat build`
-  - `CHAT_SWIFTDATA=1 xcodebuild -project swiftuiChat.xcodeproj -scheme swiftuiChat build`
+## Getting Started
 
-### SwiftData persistence & migration
-- SwiftData uses the default app container when on-disk. No extra setup needed.
-- Lightweight schema changes (adding optional properties) are supported by SwiftData.
-- For breaking schema changes, bump models and plan a data reset or migration strategy.
+1) Add local package(s) in Xcode
+- File > Add Packages… > Add Local > select `swiftuiChat/Packages/ChatCore` (and `ChatFirebase` if needed).
+- Link these products to your app target as needed:
+  - Core chat: `ChatDomain`, `ChatPresentation`, `ChatUI`, `ChatData`
+  - Login (Sign in with Apple): `LoginDomain`, `LoginPresentation`, `LoginUI`, `LoginData`
 
-### Use the reusable Chat UI
-Replace `ContentView` with the code in the “Integration snippet” below.
+2) Enable Sign in with Apple
+- App target > Signing & Capabilities > add “Sign in with Apple”.
+- Ensure the entitlement `com.apple.developer.applesignin = Default` is present.
 
-## Integrate Firebase (iOS/macOS)
-1. Add your `GoogleService-Info.plist` to the iOS and macOS app targets in Xcode.
-2. Add the local package `swiftuiChat/Packages/ChatFirebase`.
-3. Replace the in-memory repository with `FirestoreChatRepository` from ChatDataFirebase.
-4. Call `FirebaseApp.configure()` in your App entry on iOS/macOS.
+3) Choose a data source
+- In‑memory repository (default): great for development/testing.
+- SwiftData (iOS 17+/macOS 14+): set `CHAT_SWIFTDATA=1`.
+  - In‑memory store: `CHAT_SWIFTDATA_INMEMORY=1`
+  - On‑disk: omit the flag.
 
-## CI
-GitHub Actions workflow runs `swift test` on the packages. See `.github/workflows/ci.yml`.
+## Minimal Integration (Login + Chat)
 
-## Customize UI
-Use `ChatTheme` in ChatUI to tailor colors, shapes, and spacing.
-
-## Integration snippet
 ```swift
 import SwiftUI
 import ChatDomain
 import ChatPresentation
 import ChatUI
 import ChatData
+import LoginDomain
+import LoginPresentation
+import LoginUI
+import LoginData
 
-struct ContentView: View {
-    @StateObject private var vm: ChatViewModel
-
-    init() {
-        let repo = ChatRepositoryImpl(dataSource: InMemoryChatDataSource())
-        let container = ChatContainer(repo: repo)
-        let currentUser = ChatUser(id: "me", displayName: "Me")
-        // Create a chat synchronously for demo purposes
-        // In a real app, handle this via async flow
-        var chatId = "demo"
-        Task { @MainActor in
-            if let chat = try? await container.createChat(members: [currentUser]) {
-                chatId = chat.id
-            }
-        }
-        _vm = StateObject(wrappedValue: ChatViewModel(
-            chatId: chatId,
-            currentUser: currentUser,
-            observeMessages: container.observeMessages,
-            sendMessage: container.sendMessage
-        ))
-    }
+struct RootView: View {
+    @StateObject private var auth = AuthStore(repo: KeychainAuthRepository())
+    @State private var selectedChat: Chat?
+    @State private var navPath = NavigationPath()
 
     var body: some View {
-        ChatView(viewModel: vm, currentUserId: "me")
+        Group {
+            if let user = auth.currentUser {
+                NavigationStack(path: $navPath) {
+                    // Your ChatList screen or custom wrapper
+                    ChatListScreen(currentUser: user) { chat in
+                        selectedChat = chat
+                        navPath.append(chat.id)
+                    }
+                    .navigationDestination(for: String.self) { chatId in
+                        if let chat = selectedChat, chat.id == chatId {
+                            ChatScreen(chatId: chatId, currentUser: user)
+                        }
+                    }
+                }
+                .sheet(isPresented: .constant(false)) { /* present ProfileView when you want */ }
+            } else {
+                LoginView() // from LoginUI
+            }
+        }
+        .environmentObject(auth)
     }
 }
 ```
+
+To open Profile on header tap, pass a closure to `MessengerChatListView`:
+
+```swift
+MessengerChatListView(
+  viewModel: vm,
+  currentUser: user,
+  onChatSelected: { /* ... */ },
+  onNewChatTapped: { /* ... */ },
+  onHeaderAvatarTapped: { showProfile = true }
+)
+.sheet(isPresented: $showProfile) {
+  ProfileView().environmentObject(auth)
+}
+```
+
+## Build & Test (CLI)
+- Open in Xcode: `open swiftuiChat.xcodeproj`
+- Build app: `xcodebuild -project swiftuiChat.xcodeproj -scheme swiftuiChat -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 15' build`
+- Build core package: `swift build --package-path Packages/ChatCore`
+- Test core package: `swift test --package-path Packages/ChatCore`
+
+## Notes for macOS
+- `LoginView` guards `AuthenticationServices` at compile time; Sign in with Apple requires iCloud session.
+- Some iOS navigation modifiers are conditionally compiled and omitted on macOS.
+
+## Customize UI
+- Use `ChatTheme` (ChatUI) to style colors, typography, spacing.
+- Replace header actions by providing `onHeaderAvatarTapped` and your own sheet/content.
+
+## Firebase (optional)
+1. Add `GoogleService-Info.plist` to iOS/macOS targets.
+2. Add local package `Packages/ChatFirebase` and link `ChatDataFirebase`.
+3. Configure Firebase in App entry and swap repository wiring.
 
 ## License
 This template is intended for portfolio and production use. Validate dependencies and policies for your organization.
