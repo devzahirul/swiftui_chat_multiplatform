@@ -17,10 +17,12 @@ This workspace contains a modular, production‑ready chat system for iOS, iPadO
   - ChatData — Data layer (in‑memory + SwiftData data sources, repository impl)
   - ChatTestUtils — Test builders/mocks
   - LoginWithApple (feature folder)
-    - LoginDomain — `AuthRepository` abstraction
-    - LoginData — `KeychainAuthRepository` (Keychain + UserDefaults)
-    - LoginPresentation — `AuthStore` (observable auth state)
-    - LoginUI — `LoginView` (Sign in with Apple), `ProfileView` (name/email), clipboard util
+    - Product: `LoginWithApple` (single package product)
+    - Targets included:
+      - LoginDomain — `AuthRepository` abstraction
+      - LoginData — `KeychainAuthRepository` (Keychain + UserDefaults)
+      - LoginPresentation — `AuthStore` (observable auth state)
+      - LoginUI — `LoginView` (Sign in with Apple), `ProfileView` (name/email), clipboard util
 - ChatFirebase (Swift Package)
   - ChatDataFirebase — Firestore repository (iOS/macOS)
 
@@ -62,37 +64,54 @@ import ChatDomain
 import ChatPresentation
 import ChatUI
 import ChatData
-import LoginDomain
-import LoginPresentation
-import LoginUI
-import LoginData
+import LoginWithApple
 
 struct RootView: View {
     @StateObject private var auth = AuthStore(repo: KeychainAuthRepository())
-    @State private var selectedChat: Chat?
-    @State private var navPath = NavigationPath()
+    @State private var showProfile = false
+
+    init() {
+        // Optional: use provided DI wiring for ChatCore
+        let c = Container(); useContainer(c); loadChatDependencies()
+    }
 
     var body: some View {
         Group {
-            if let user = auth.currentUser {
-                NavigationStack(path: $navPath) {
-                    // Your ChatList screen or custom wrapper
-                    ChatListScreen(currentUser: user) { chat in
-                        selectedChat = chat
-                        navPath.append(chat.id)
+            if auth.currentUser != nil {
+                // Example using header tap hook in MessengerChatListView
+                ChatShell(onProfile: { showProfile = true })
+                    .sheet(isPresented: $showProfile) {
+                        ProfileView().environmentObject(auth)
                     }
-                    .navigationDestination(for: String.self) { chatId in
-                        if let chat = selectedChat, chat.id == chatId {
-                            ChatScreen(chatId: chatId, currentUser: user)
-                        }
-                    }
-                }
-                .sheet(isPresented: .constant(false)) { /* present ProfileView when you want */ }
             } else {
-                LoginView() // from LoginUI
+                LoginView().environmentObject(auth)
             }
         }
         .environmentObject(auth)
+    }
+}
+
+// A thin wrapper you can customize; inside, use ChatUI.MessengerChatListView
+struct ChatShell: View {
+    var onProfile: () -> Void
+    @StateObject private var listVM: ChatPresentation.ChatListViewModel
+    private let currentUser = ChatUser(id: "me", displayName: "Me")
+
+    init(onProfile: @escaping () -> Void) {
+        self.onProfile = onProfile
+        let getAll: GetAllChatsUseCase = resolve()
+        let getLatest: GetLatestMessageUseCase = resolve()
+        _listVM = StateObject(wrappedValue: ChatPresentation.ChatListViewModel(getAllChats: getAll, getLatestMessage: getLatest))
+    }
+
+    var body: some View {
+        MessengerChatListView(
+            viewModel: listVM,
+            currentUser: currentUser,
+            onChatSelected: { _ in },
+            onNewChatTapped: {},
+            onHeaderAvatarTapped: onProfile
+        )
     }
 }
 ```
@@ -121,6 +140,13 @@ MessengerChatListView(
 ## Notes for macOS
 - `LoginView` guards `AuthenticationServices` at compile time; Sign in with Apple requires iCloud session.
 - Some iOS navigation modifiers are conditionally compiled and omitted on macOS.
+
+## Flags and Data Sources
+- In‑memory Chat repository (default)
+- SwiftData (iOS 17+/macOS 14+): set `CHAT_SWIFTDATA=1`
+  - In‑memory store: `CHAT_SWIFTDATA_INMEMORY=1`
+  - On‑disk store: omit the flag
+  
 
 ## Customize UI
 - Use `ChatTheme` (ChatUI) to style colors, typography, spacing.
