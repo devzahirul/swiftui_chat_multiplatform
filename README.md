@@ -323,6 +323,73 @@ MessengerChatListView(
 )
 ```
 
+4) Typing indicator via messageAccessory + onTyping
+
+```swift
+// Controller that streams peer typing and publishes our typing
+final class TypingController: ObservableObject {
+  @Published var peerIsTyping = false
+  private let typingRepo = InMemoryTypingRepository() // or your own TypingRepository
+  private var task: Task<Void, Never>?
+  func start(chatId: String, currentUserId: String) {
+    task?.cancel()
+    task = Task { [weak self] in
+      do {
+        for try await t in typingRepo.typingStream(chatId: chatId) {
+          guard t.userId != currentUserId else { continue }
+          await MainActor.run { self?.peerIsTyping = t.isTyping }
+        }
+      } catch { }
+    }
+  }
+  func setTyping(chatId: String, userId: String, isTyping: Bool) {
+    Task { try? await typingRepo.setTyping(chatId: chatId, userId: userId, isTyping: isTyping) }
+  }
+  deinit { task?.cancel() }
+}
+
+// Use in MessengerChatView slots
+@StateObject var typing = TypingController()
+MessengerChatView(
+  viewModel: chatVM,
+  currentUserId: user.id,
+  messageAccessory: { _, isOutgoing in
+    if !isOutgoing && typing.peerIsTyping { TypingDotsView() } else { EmptyView() }
+  },
+  headerLeading: { EmptyView() },
+  headerTrailing: { DefaultHeaderTrailing() },
+  inputAccessory: { EmptyView() },
+  onTyping: { isTyping in typing.setTyping(chatId: chatId, userId: user.id, isTyping: isTyping) }
+)
+.onAppear { typing.start(chatId: chatId, currentUserId: user.id) }
+```
+
+5) Registry bootstrap (no DI, single place to configure data)
+
+```swift
+// At app startup (e.g., in App.init)
+ChatCoreRegistry.makeRepository = { ChatRepositoryImpl(dataSource: InMemoryChatDataSource()) }
+ChatCoreRegistry.makePresenceRepository = { InMemoryPresenceRepository() }
+ChatCoreRegistry.makeTypingRepository = { InMemoryTypingRepository() }
+
+// Build environment anywhere you need it
+if let env = ChatResolver.makeEnvironmentFromRegistry() {
+  // Chat use cases
+  let observe = env.chat.observeMessages
+  let send = env.chat.sendMessage
+  let create = env.chat.createChat
+
+  // Presence/typing (optional)
+  if let p = env.presence {
+    let observePresence = p.observePresence
+    let updatePresence = p.updatePresence
+    let observeTyping = p.observeTyping
+    let setTyping = p.setTyping
+    // Wire these into your UI as needed
+  }
+}
+```
+
 ## Firebase (optional)
 1. Add `GoogleService-Info.plist` to iOS/macOS targets.
 2. Add local package `Packages/ChatFirebase` and link `ChatDataFirebase`.
