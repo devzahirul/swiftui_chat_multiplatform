@@ -4,6 +4,10 @@ import ChatDomain
 import SwiftHilt
 
 public enum ChatDIModules {
+    public static func registerAll(into c: Container, using repoFactory: @escaping () -> ChatRepository) {
+        c.provide(ChatRepository.self, lifetime: .singleton) { _ in repoFactory() }
+        registerCore(into: c)
+    }
     // Registers use cases. Expect ChatRepository to be registered by the app.
     public static func registerCore(into c: Container) {
         c.register(ObserveMessagesUseCase.self, lifetime: .transient) { r in
