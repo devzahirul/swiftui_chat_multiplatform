@@ -1,0 +1,4 @@
+module LoginWithApple {
+    header "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/LoginWithApple-Swift.h"
+    requires objc
+}

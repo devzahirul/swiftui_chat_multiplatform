@@ -13,10 +13,11 @@ Highlights:
 ## Modules
 
 - ChatCore (Swift Package)
-  - ChatDomain: Entities, repository protocols, use cases, in-memory repo
+  - ChatDomain: Entities, repository protocols, use cases
   - ChatPresentation: View models, DI container
   - ChatUI: SwiftUI views, themes, simple chat screen
   - ChatTestUtils: Test data builders and mocks
+  - ChatData: Data layer (DataSource protocols, repository impl, in‑memory and SwiftData data sources)
 - ChatFirebase (Swift Package)
   - ChatDataFirebase: Firestore-based repository for iOS and macOS
 
@@ -29,7 +30,22 @@ The app uses an in-memory chat repository by default so you can build and run im
 
 ### Add local package to Xcode
 - File > Add Packages… > Add Local > select `swiftuiChat/Packages/ChatCore`.
-- Add `ChatDomain`, `ChatPresentation`, and `ChatUI` to the `swiftuiChat` app target.
+- Add `ChatDomain`, `ChatPresentation`, `ChatUI`, and `ChatData` to the `swiftuiChat` app target.
+
+### Use SwiftData (optional)
+- Requires iOS 17+/macOS 14+.
+- Enable SwiftData data source: set `CHAT_SWIFTDATA=1`.
+- Choose store type:
+  - In-memory (ephemeral): set `CHAT_SWIFTDATA_INMEMORY=1`
+  - On-disk (persistent, default when not set): omit the flag
+- Example (CLI):
+  - `CHAT_SWIFTDATA=1 CHAT_SWIFTDATA_INMEMORY=1 xcodebuild -project swiftuiChat.xcodeproj -scheme swiftuiChat build`
+  - `CHAT_SWIFTDATA=1 xcodebuild -project swiftuiChat.xcodeproj -scheme swiftuiChat build`
+
+### SwiftData persistence & migration
+- SwiftData uses the default app container when on-disk. No extra setup needed.
+- Lightweight schema changes (adding optional properties) are supported by SwiftData.
+- For breaking schema changes, bump models and plan a data reset or migration strategy.
 
 ### Use the reusable Chat UI
 Replace `ContentView` with the code in the “Integration snippet” below.
@@ -52,12 +68,13 @@ import SwiftUI
 import ChatDomain
 import ChatPresentation
 import ChatUI
+import ChatData
 
 struct ContentView: View {
     @StateObject private var vm: ChatViewModel
 
     init() {
-        let repo = InMemoryChatRepository()
+        let repo = ChatRepositoryImpl(dataSource: InMemoryChatDataSource())
         let container = ChatContainer(repo: repo)
         let currentUser = ChatUser(id: "me", displayName: "Me")
         // Create a chat synchronously for demo purposes

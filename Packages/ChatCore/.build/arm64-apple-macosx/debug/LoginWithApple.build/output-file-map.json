@@ -1,0 +1,35 @@
+{
+  "": {
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/master.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Sources/LoginWithApple/AuthStore.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/AuthStore.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/AuthStore.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/AuthStore~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/AuthStore.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Sources/LoginWithApple/Clipboard.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/Clipboard.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/Clipboard.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/Clipboard~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/Clipboard.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Sources/LoginWithApple/KeychainHelper.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/KeychainHelper.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/KeychainHelper.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/KeychainHelper~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/KeychainHelper.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Sources/LoginWithApple/LoginView.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/LoginView.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/LoginView.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/LoginView~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/LoginView.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Sources/LoginWithApple/ProfileView.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/ProfileView.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/ProfileView.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/ProfileView~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginWithApple.build/ProfileView.swiftdeps"
+  }
+}

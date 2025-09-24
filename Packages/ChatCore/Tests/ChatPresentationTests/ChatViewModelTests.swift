@@ -2,11 +2,12 @@ import XCTest
 @testable import ChatPresentation
 @testable import ChatDomain
 import ChatTestUtils
+import ChatData
 
 final class ChatViewModelTests: XCTestCase {
     @MainActor
     func test_start_and_send_updates_messages() async throws {
-    let repo = InMemoryChatRepository()
+    let repo = ChatRepositoryImpl(dataSource: InMemoryChatDataSource())
         let container = ChatContainer(repo: repo)
         let u1 = Fixtures.user(name: "Me")
         let u2 = Fixtures.user(name: "You")

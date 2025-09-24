@@ -1,0 +1,4 @@
+module ChatDomain {
+    header "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatDomain.build/ChatDomain-Swift.h"
+    requires objc
+}

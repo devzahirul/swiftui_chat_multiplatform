@@ -1,0 +1,4 @@
+module LoginData {
+    header "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginData.build/LoginData-Swift.h"
+    requires objc
+}

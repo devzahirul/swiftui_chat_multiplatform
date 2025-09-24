@@ -1,0 +1,11 @@
+{
+  "": {
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatDomainTests.build/master.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Tests/ChatDomainTests/InMemoryChatRepositoryTests.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatDomainTests.build/InMemoryChatRepositoryTests.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatDomainTests.build/InMemoryChatRepositoryTests.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatDomainTests.build/InMemoryChatRepositoryTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatDomainTests.build/InMemoryChatRepositoryTests.swiftdeps"
+  }
+}

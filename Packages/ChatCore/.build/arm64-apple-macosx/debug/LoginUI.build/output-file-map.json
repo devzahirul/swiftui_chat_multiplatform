@@ -1,0 +1,23 @@
+{
+  "": {
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/master.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Sources/LoginWithApple/LoginUI/Clipboard.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/Clipboard.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/Clipboard.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/Clipboard~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/Clipboard.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Sources/LoginWithApple/LoginUI/LoginView.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/LoginView.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/LoginView.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/LoginView~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/LoginView.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Sources/LoginWithApple/LoginUI/ProfileView.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/ProfileView.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/ProfileView.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/ProfileView~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/LoginUI.build/ProfileView.swiftdeps"
+  }
+}

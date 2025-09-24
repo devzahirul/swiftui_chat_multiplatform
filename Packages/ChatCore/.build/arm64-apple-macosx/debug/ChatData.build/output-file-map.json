@@ -1,0 +1,29 @@
+{
+  "": {
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/master.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Sources/ChatData/ChatDataSource.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/ChatDataSource.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/ChatDataSource.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/ChatDataSource~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/ChatDataSource.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Sources/ChatData/ChatRepositoryImpl.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/ChatRepositoryImpl.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/ChatRepositoryImpl.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/ChatRepositoryImpl~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/ChatRepositoryImpl.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Sources/ChatData/InMemoryChatDataSource.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/InMemoryChatDataSource.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/InMemoryChatDataSource.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/InMemoryChatDataSource~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/InMemoryChatDataSource.swiftdeps"
+  },
+  "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/Sources/ChatData/SwiftDataChatDataSource.swift": {
+    "dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/SwiftDataChatDataSource.d",
+    "object": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/SwiftDataChatDataSource.swift.o",
+    "swiftmodule": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/SwiftDataChatDataSource~partial.swiftmodule",
+    "swift-dependencies": "/Users/lynkto_1/swiftui_chat/swiftuiChat/Packages/ChatCore/.build/arm64-apple-macosx/debug/ChatData.build/SwiftDataChatDataSource.swiftdeps"
+  }
+}

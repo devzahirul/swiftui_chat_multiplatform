@@ -13,7 +13,13 @@ let package = Package(
         .library(name: "ChatDomain", targets: ["ChatDomain"]),
         .library(name: "ChatPresentation", targets: ["ChatPresentation"]),
         .library(name: "ChatUI", targets: ["ChatUI"]),
-        .library(name: "ChatTestUtils", targets: ["ChatTestUtils"])
+        .library(name: "ChatTestUtils", targets: ["ChatTestUtils"]),
+        .library(name: "ChatData", targets: ["ChatData"]), // Data layer (in-memory data source + repo impl)
+        // Auth (Sign in with Apple) — Clean Architecture layers
+        .library(name: "LoginDomain", targets: ["LoginDomain"]),
+        .library(name: "LoginPresentation", targets: ["LoginPresentation"]),
+        .library(name: "LoginUI", targets: ["LoginUI"]),
+        .library(name: "LoginData", targets: ["LoginData"]) 
     ],
     dependencies: [],
     targets: [
@@ -23,6 +29,12 @@ let package = Package(
         ]),
         .target(name: "ChatUI", dependencies: ["ChatDomain", "ChatPresentation"]),
         .target(name: "ChatTestUtils", dependencies: ["ChatDomain"], path: "Sources/ChatTestUtils"),
-        .testTarget(name: "ChatDomainTests", dependencies: ["ChatDomain", "ChatTestUtils"]),
-        .testTarget(name: "ChatPresentationTests", dependencies: ["ChatPresentation", "ChatTestUtils"])    ]
+        .target(name: "ChatData", dependencies: ["ChatDomain"], path: "Sources/ChatData"),
+        // Login/Auth targets
+        .target(name: "LoginDomain", dependencies: ["ChatDomain"], path: "Sources/LoginWithApple/LoginDomain"),
+        .target(name: "LoginData", dependencies: ["LoginDomain"], path: "Sources/LoginWithApple/LoginData"),
+        .target(name: "LoginPresentation", dependencies: ["LoginDomain"], path: "Sources/LoginWithApple/LoginPresentation"),
+        .target(name: "LoginUI", dependencies: ["LoginPresentation", "ChatDomain"], path: "Sources/LoginWithApple/LoginUI"),
+        .testTarget(name: "ChatDomainTests", dependencies: ["ChatDomain", "ChatTestUtils", "ChatData"]),
+        .testTarget(name: "ChatPresentationTests", dependencies: ["ChatPresentation", "ChatTestUtils", "ChatData"])    ]
 )

@@ -7,59 +7,195 @@ import UIKit
 import AppKit
 #endif
 
-public struct ChatView: View {
+public struct MessengerChatView: View {
     @ObservedObject var vm: ChatViewModel
     let currentUserId: String
+    let chatTitle: String
+    let isOnline: Bool
 
-    public init(viewModel: ChatViewModel, currentUserId: String) {
+    @Environment(\.messengerTheme) private var theme
+    @Environment(\.dismiss) private var dismiss
+
+    public init(
+        viewModel: ChatViewModel,
+        currentUserId: String,
+        chatTitle: String = "Chat",
+        isOnline: Bool = false
+    ) {
         self.vm = viewModel
         self.currentUserId = currentUserId
+        self.chatTitle = chatTitle
+        self.isOnline = isOnline
     }
 
     public var body: some View {
         VStack(spacing: 0) {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 4) {
-                        ForEach(vm.messages) { msg in
-                            MessageRow(message: msg, isOutgoing: msg.senderId == currentUserId)
-                                .id(msg.id)
-                        }
-                    }
-                }
-                .onChange(of: vm.messages.map { $0.id }) { _ in
-                    if let last = vm.messages.last?.id {
-                        withAnimation { proxy.scrollTo(last, anchor: .bottom) }
-                    }
-                }
-            }
-            Divider()
-            HStack {
-                TextField("Message", text: $vm.draft, axis: .vertical)
-                    .textFieldStyle(.roundedBorder)
-                Button {
+            messengerHeader
+
+            messagesContainer
+
+            MessengerInputField(
+                text: $vm.draft,
+                onSend: {
                     Task { await vm.send() }
-                } label: {
-                    Image(systemName: "paperplane.fill")
+                },
+                onTyping: { isTyping in
+                    // Handle typing indicator
                 }
-                .keyboardShortcut(.return, modifiers: [.command])
-                .disabled(vm.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-            .padding()
-            .background(Self.composerBackgroundColor)
+            )
         }
+        .background(theme.background)
+        #if canImport(UIKit)
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+        #endif
         .onAppear { vm.start() }
     }
-}
 
-private extension ChatView {
-    static var composerBackgroundColor: Color {
-        #if os(iOS)
-        return Color(UIColor.secondarySystemBackground)
-        #elseif os(macOS)
-        return Color(NSColor.controlBackgroundColor)
-        #else
-        return Color.gray.opacity(0.1)
+    private var messengerHeader: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                // Back button
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(theme.outgoing)
+                        .frame(width: 32, height: 32)
+                }
+                .buttonStyle(.plain)
+
+                // Chat info
+                HStack(spacing: 12) {
+                    MessengerAvatar.medium(
+                        initials: chatInitials,
+                        isOnline: isOnline
+                    )
+
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(chatTitle)
+                            .font(MessengerTheme.Typography.chatTitle)
+                            .foregroundColor(theme.text)
+                            .lineLimit(1)
+
+                        if isOnline {
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(theme.activeStatus)
+                                    .frame(width: 8, height: 8)
+
+                                Text("Active now")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    Spacer()
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    // Navigate to chat info
+                }
+
+                // More options button
+                Button(action: {}) {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 20))
+                        .foregroundColor(theme.outgoing)
+                        .frame(width: 32, height: 32)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, MessengerTheme.Spacing.defaultPadding)
+            .padding(.vertical, 8)
+            .background(theme.background)
+
+            Rectangle()
+                .fill(theme.separator)
+                .frame(height: 0.5)
+        }
+    }
+
+    private var messagesContainer: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 2) {
+                    ForEach(groupedMessages, id: \.0) { (_, messages) in
+                        ForEach(Array(messages.enumerated()), id: \.element.id) { index, message in
+                            let isLastInGroup = index == messages.count - 1
+                            let shouldShowTimestamp = shouldShowTimestamp(for: message, in: messages, at: index)
+
+                            MessengerMessageRow(
+                                message: message,
+                                isOutgoing: message.senderId == currentUserId,
+                                isLastInGroup: isLastInGroup,
+                                showTimestamp: shouldShowTimestamp
+                            )
+                            .id(message.id)
+                        }
+                    }
+
+                    // Bottom spacer for better scrolling experience
+                    Color.clear
+                        .frame(height: 8)
+                        .id("bottom")
+                }
+                .padding(.top, 8)
+            }
+            .background(theme.background)
+            .onChange(of: vm.messages.map { $0.id }) { _ in
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    proxy.scrollTo("bottom", anchor: .bottom)
+                }
+            }
+            .onTapGesture {
+                // Dismiss keyboard when tapping on messages
+                hideKeyboard()
+            }
+        }
+    }
+
+    // Group messages by sender and time proximity
+    private var groupedMessages: [(String, [Message])] {
+        let grouped = Dictionary(grouping: vm.messages) { message in
+            "\(message.senderId)-\(timeGroup(for: message.sentAt))"
+        }
+
+        return grouped.sorted { lhs, rhs in
+            guard let lhsFirst = lhs.value.first,
+                  let rhsFirst = rhs.value.first else { return false }
+            return lhsFirst.sentAt < rhsFirst.sentAt
+        }.map { (key, messages) in
+            (key, messages.sorted { $0.sentAt < $1.sentAt })
+        }
+    }
+
+    private func timeGroup(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd-HHmm"
+        let rounded = Calendar.current.date(byAdding: .minute, value: -Int(date.timeIntervalSince1970.truncatingRemainder(dividingBy: 300)), to: date) ?? date
+        return formatter.string(from: rounded)
+    }
+
+    private func shouldShowTimestamp(for message: Message, in messages: [Message], at index: Int) -> Bool {
+        guard index < messages.count - 1 else { return true }
+        let nextMessage = messages[index + 1]
+        return message.sentAt.timeIntervalSince(nextMessage.sentAt) > 300 // 5 minutes
+    }
+
+    private var chatInitials: String {
+        let parts = chatTitle.split(separator: " ")
+        let first = parts.first?.first.map(String.init) ?? "C"
+        let second = parts.dropFirst().first?.first.map(String.init) ?? ""
+        return (first + second).uppercased()
+    }
+
+    private func hideKeyboard() {
+        #if canImport(UIKit)
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         #endif
     }
 }
+
+// Legacy ChatView for backward compatibility
+public typealias ChatView = MessengerChatView

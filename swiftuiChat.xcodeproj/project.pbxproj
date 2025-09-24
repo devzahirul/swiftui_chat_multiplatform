@@ -11,6 +11,10 @@
 		0B4116092E82974C0030127C /* ChatDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4116082E82974C0030127C /* ChatDomain */; };
 		0B41160B2E82974C0030127C /* ChatPresentation in Frameworks */ = {isa = PBXBuildFile; productRef = 0B41160A2E82974C0030127C /* ChatPresentation */; };
 		0B41160D2E82974C0030127C /* ChatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 0B41160C2E82974C0030127C /* ChatUI */; };
+        0B4116122E82974C0030127C /* ChatData in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4116112E82974C0030127C /* ChatData */; };
+        0B4116202E82974C0030127C /* LoginUI in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4116212E82974C0030127C /* LoginUI */; };
+        0B4116222E82974C0030127C /* LoginPresentation in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4116232E82974C0030127C /* LoginPresentation */; };
+        0B4116242E82974C0030127C /* LoginData in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4116252E82974C0030127C /* LoginData */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,12 +33,16 @@
 		0BFE36692E82922B00D54D6E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
-			files = (
-				0B41160D2E82974C0030127C /* ChatUI in Frameworks */,
-				0B4116092E82974C0030127C /* ChatDomain in Frameworks */,
-				0B41160B2E82974C0030127C /* ChatPresentation in Frameworks */,
-				0B4116062E8297230030127C /* SwiftHilt in Frameworks */,
-			);
+            files = (
+                0B4116242E82974C0030127C /* LoginData in Frameworks */,
+                0B4116202E82974C0030127C /* LoginUI in Frameworks */,
+                0B4116222E82974C0030127C /* LoginPresentation in Frameworks */,
+                0B4116122E82974C0030127C /* ChatData in Frameworks */,
+                0B41160D2E82974C0030127C /* ChatUI in Frameworks */,
+                0B4116092E82974C0030127C /* ChatDomain in Frameworks */,
+                0B41160B2E82974C0030127C /* ChatPresentation in Frameworks */,
+                0B4116062E8297230030127C /* SwiftHilt in Frameworks */,
+            );
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -75,12 +83,16 @@
 				0BFE366E2E82922B00D54D6E /* swiftuiChat */,
 			);
 			name = swiftuiChat;
-			packageProductDependencies = (
-				0B4116052E8297230030127C /* SwiftHilt */,
-				0B4116082E82974C0030127C /* ChatDomain */,
-				0B41160A2E82974C0030127C /* ChatPresentation */,
-				0B41160C2E82974C0030127C /* ChatUI */,
-			);
+            packageProductDependencies = (
+                0B4116052E8297230030127C /* SwiftHilt */,
+                0B4116082E82974C0030127C /* ChatDomain */,
+                0B41160A2E82974C0030127C /* ChatPresentation */,
+                0B41160C2E82974C0030127C /* ChatUI */,
+                0B4116112E82974C0030127C /* ChatData */,
+                0B4116212E82974C0030127C /* LoginUI */,
+                0B4116232E82974C0030127C /* LoginPresentation */,
+                0B4116252E82974C0030127C /* LoginData */,
+            );
 			productName = swiftuiChat;
 			productReference = 0BFE366C2E82922B00D54D6E /* swiftuiChat.app */;
 			productType = "com.apple.product-type.application";
@@ -397,6 +409,22 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = ChatUI;
 		};
+		0B4116112E82974C0030127C /* ChatData */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ChatData;
+		};
+        0B4116212E82974C0030127C /* LoginUI */ = {
+            isa = XCSwiftPackageProductDependency;
+            productName = LoginUI;
+        };
+        0B4116232E82974C0030127C /* LoginPresentation */ = {
+            isa = XCSwiftPackageProductDependency;
+            productName = LoginPresentation;
+        };
+        0B4116252E82974C0030127C /* LoginData */ = {
+            isa = XCSwiftPackageProductDependency;
+            productName = LoginData;
+        };
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0BFE36642E82922B00D54D6E /* Project object */;

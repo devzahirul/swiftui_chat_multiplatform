@@ -1,10 +1,11 @@
 import XCTest
 @testable import ChatDomain
 import ChatTestUtils
+import ChatData
 
 final class InMemoryChatRepositoryTests: XCTestCase {
     func test_createChat_and_send_and_stream() async throws {
-    let repo = InMemoryChatRepository()
+    let repo = ChatRepositoryImpl(dataSource: InMemoryChatDataSource())
         let u1 = Fixtures.user(name: "A")
         let u2 = Fixtures.user(name: "B")
         let chat = try await repo.createChat(members: [u1, u2])

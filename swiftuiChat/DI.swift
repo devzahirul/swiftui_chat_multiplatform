@@ -8,6 +8,10 @@
 import Foundation
 import SwiftHilt
 import ChatDomain
+import ChatData
+#if canImport(SwiftData)
+import SwiftData
+#endif
 
 #if canImport(ChatDataFirebase)
 import ChatDataFirebase
@@ -21,18 +25,27 @@ func loadChatDependencies() {
     // Repository binding
     install {
         provide(ChatRepository.self, lifetime: .singleton) { _ in
-            // Toggle via env var if needed (e.g., UITEST_INMEMORY or CHAT_INMEMORY)
+            // Explicit override flags first
             if ProcessInfo.processInfo.environment["CHAT_INMEMORY"] == "1" {
-                return InMemoryChatRepository() as ChatRepository
+                return ChatRepositoryImpl(dataSource: InMemoryChatDataSource()) as ChatRepository
             }
             #if canImport(ChatDataFirebase)
-            // If you prefer Firestore by default, comment the next line
-            return InMemoryChatRepository() as ChatRepository
-            // Alternatively, register Firestore repo below from app entry point:
-            // ChatFirebaseDIModule.register(into: defaultContainer)
-            #else
-            return InMemoryChatRepository() as ChatRepository
+            if ProcessInfo.processInfo.environment["CHAT_FIREBASE"] == "1" {
+                // ChatFirebaseDIModule.register(into: defaultContainer) could be used instead
+                return ChatRepositoryImpl(dataSource: InMemoryChatDataSource()) as ChatRepository
+            }
             #endif
+            // Default to SwiftData (persistent) when available
+            #if canImport(SwiftData)
+            if #available(iOS 17, macOS 14, watchOS 10, *) {
+                let inMemoryStore = ProcessInfo.processInfo.environment["CHAT_SWIFTDATA_INMEMORY"] == "1"
+                if let container = try? SwiftDataSupport.makeContainer(inMemory: inMemoryStore) {
+                    return ChatRepositoryImpl(dataSource: SwiftDataChatDataSource(container: container)) as ChatRepository
+                }
+            }
+            #endif
+            // Fallback
+            return ChatRepositoryImpl(dataSource: InMemoryChatDataSource()) as ChatRepository
         }
     }
 

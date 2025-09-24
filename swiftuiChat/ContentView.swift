@@ -10,11 +10,15 @@ import ChatDomain
 import ChatPresentation
 import ChatUI
 import SwiftHilt
+import LoginPresentation
+import LoginUI
+import LoginData
 
 struct ContentView: View {
-    private let currentUser = ChatUser(id: "me", displayName: "Me")
+    @StateObject private var auth = AuthStore(repo: KeychainAuthRepository())
     @State private var selectedChat: Chat?
     @State private var navigationPath = NavigationPath()
+    @State private var showingProfile = false
 
     init() {
         let c = Container()
@@ -23,19 +27,34 @@ struct ContentView: View {
     }
 
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            ChatListScreen(currentUser: currentUser) { chat in
-                selectedChat = chat
-                navigationPath.append(chat.id)
-            }
-            .navigationDestination(for: String.self) { chatId in
-                if let chat = selectedChat, chat.id == chatId {
-                    ChatScreen(chatId: chatId, currentUser: currentUser)
-                        .navigationBarTitleDisplayMode(.inline)
+        Group {
+            if let user = auth.currentUser {
+                NavigationStack(path: $navigationPath) {
+                    ChatListScreen(currentUser: user, onAvatarTapped: { showingProfile = true }) { chat in
+                        selectedChat = chat
+                        navigationPath.append(chat.id)
+                    }
+                    .navigationDestination(for: String.self) { chatId in
+                        if let chat = selectedChat, chat.id == chatId {
+                            ChatScreen(chatId: chatId, currentUser: user)
+#if canImport(UIKit)
+                                .navigationBarTitleDisplayMode(.inline)
+#endif
+                        }
+                    }
                 }
+                .sheet(isPresented: $showingProfile) {
+                    LoginUI.ProfileView()
+                        .environmentObject(auth)
+                }
+            } else {
+                LoginUI.LoginView()
             }
         }
+        .environmentObject(auth)
     }
+
+    // Toolbar removed; using inline header button above chat list
 }
 
 private struct ChatScreen: View {
@@ -60,11 +79,13 @@ private struct ChatScreen: View {
 private struct ChatListScreen: View {
     let currentUser: ChatUser
     let onChatSelected: (Chat) -> Void
+    let onAvatarTapped: () -> Void
     @StateObject private var viewModel: ChatPresentation.ChatListViewModel
 
-    init(currentUser: ChatUser, onChatSelected: @escaping (Chat) -> Void) {
+    init(currentUser: ChatUser, onAvatarTapped: @escaping () -> Void, onChatSelected: @escaping (Chat) -> Void) {
         self.currentUser = currentUser
         self.onChatSelected = onChatSelected
+        self.onAvatarTapped = onAvatarTapped
         let getAllChats: GetAllChatsUseCase = resolve()
         let getLatestMessage: GetLatestMessageUseCase = resolve()
         _viewModel = StateObject(wrappedValue: ChatPresentation.ChatListViewModel(getAllChats: getAllChats, getLatestMessage: getLatestMessage))
@@ -83,13 +104,18 @@ private struct ChatListScreen: View {
                         await viewModel.loadChats()
                     }
                 }
-            }
+            },
+            onHeaderAvatarTapped: onAvatarTapped
         )
         .navigationTitle("")
+#if canImport(UIKit)
         .navigationBarHidden(true)
+#endif
     }
 }
 
 #Preview {
     ContentView()
 }
+
+// Header icon handled by ChatUI.MessengerChatListView
