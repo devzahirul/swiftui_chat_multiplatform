@@ -34,7 +34,7 @@ struct ContentView: View {
                     }
                     .navigationDestination(for: String.self) { chatId in
                         if let chat = selectedChat, chat.id == chatId {
-                            ChatScreen(chatId: chatId, currentUser: user)
+                            CustomChatScreen(chatId: chatId, currentUser: user)
 #if canImport(UIKit)
                                 .navigationBarTitleDisplayMode(.inline)
 #endif

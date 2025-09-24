@@ -16,6 +16,7 @@ public struct MessengerChatView<HeaderLeading: View, HeaderTrailing: View, Messa
     let headerTrailing: () -> HeaderTrailing
     let messageAccessory: (Message, Bool) -> MessageAccessory
     let inputAccessory: () -> InputAccessory
+    let onTyping: ((Bool) -> Void)?
 
     @Environment(\.messengerTheme) private var theme
     @Environment(\.dismiss) private var dismiss
@@ -28,7 +29,8 @@ public struct MessengerChatView<HeaderLeading: View, HeaderTrailing: View, Messa
         @ViewBuilder headerLeading: @escaping () -> HeaderLeading,
         @ViewBuilder headerTrailing: @escaping () -> HeaderTrailing,
         @ViewBuilder messageAccessory: @escaping (Message, Bool) -> MessageAccessory,
-        @ViewBuilder inputAccessory: @escaping () -> InputAccessory
+        @ViewBuilder inputAccessory: @escaping () -> InputAccessory,
+        onTyping: ((Bool) -> Void)? = nil
     ) {
         self.vm = viewModel
         self.currentUserId = currentUserId
@@ -38,6 +40,7 @@ public struct MessengerChatView<HeaderLeading: View, HeaderTrailing: View, Messa
         self.headerTrailing = headerTrailing
         self.messageAccessory = messageAccessory
         self.inputAccessory = inputAccessory
+        self.onTyping = onTyping
     }
 
     public var body: some View {
@@ -52,9 +55,7 @@ public struct MessengerChatView<HeaderLeading: View, HeaderTrailing: View, Messa
                 onSend: {
                     Task { await vm.send() }
                 },
-                onTyping: { isTyping in
-                    // Handle typing indicator
-                }
+                onTyping: { isTyping in onTyping?(isTyping) }
             )
         }
         .background(theme.background)
