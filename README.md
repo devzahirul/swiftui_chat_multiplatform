@@ -35,6 +35,11 @@ watchOS: Firestore is not supported. Use in‑memory or bridge via WatchConnecti
   - Keychain‑backed session, persisted display name + email
   - Packaged `LoginView` and `ProfileView`
   - Platform guards for macOS/watchOS
+- Deep customization
+  - ChatList slots: `headerContent`, `searchContent`, `emptyState`, `rowAccessory`
+  - ChatView slots: `headerLeading`, `headerTrailing`, `messageAccessory`, `inputAccessory`
+  - Message bubbles: `MessageBubbleStyle` protocol (default `MessengerBubbleStyle`)
+  - Input field accessories: leading/trailing closures
 - Header customization
   - `MessengerChatListView` exposes `onHeaderAvatarTapped` so host apps decide what to show (Profile, Settings, etc.)
 
@@ -141,6 +146,12 @@ MessengerChatListView(
 - `LoginView` guards `AuthenticationServices` at compile time; Sign in with Apple requires iCloud session.
 - Some iOS navigation modifiers are conditionally compiled and omitted on macOS.
 
+## Presence & Typing (preview)
+- Domain: `Presence`, `TypingIndicator`, `ChatEvent`.
+- Protocols: `PresenceRepository`, `TypingRepository` with observe/update methods.
+- Use cases: `ObservePresenceUseCase`, `UpdatePresenceUseCase`, `ObserveTypingUseCase`, `SetTypingUseCase`.
+- UI: Surface typing indicators via `messageAccessory` or the chat header.
+
 ## Flags and Data Sources
 - In‑memory Chat repository (default)
 - SwiftData (iOS 17+/macOS 14+): set `CHAT_SWIFTDATA=1`
@@ -151,6 +162,10 @@ MessengerChatListView(
 ## Customize UI
 - Use `ChatTheme` (ChatUI) to style colors, typography, spacing.
 - Replace header actions by providing `onHeaderAvatarTapped` and your own sheet/content.
+- Override high‑level UI via ViewBuilder slots and styles:
+  - ChatList: provide custom header/search/empty/row accessory.
+  - ChatView: provide custom header actions, per‑message accessory, and input accessory.
+  - Message bubbles: implement `MessageBubbleStyle` if you need a different look.
 
 ## Firebase (optional)
 1. Add `GoogleService-Info.plist` to iOS/macOS targets.

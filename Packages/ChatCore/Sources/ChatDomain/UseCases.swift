@@ -40,3 +40,37 @@ public struct GetLatestMessageUseCase {
         try await repo.getLatestMessage(chatId: chatId)
     }
 }
+
+// MARK: - Presence & Typing Use Cases
+
+public struct ObservePresenceUseCase {
+    let repo: PresenceRepository
+    public init(repo: PresenceRepository) { self.repo = repo }
+    public func callAsFunction(userId: String) -> AsyncThrowingStream<Presence, Error> {
+        repo.presenceStream(userId: userId)
+    }
+}
+
+public struct UpdatePresenceUseCase {
+    let repo: PresenceRepository
+    public init(repo: PresenceRepository) { self.repo = repo }
+    public func callAsFunction(userId: String, isOnline: Bool) async throws {
+        try await repo.setPresence(userId: userId, isOnline: isOnline)
+    }
+}
+
+public struct ObserveTypingUseCase {
+    let repo: TypingRepository
+    public init(repo: TypingRepository) { self.repo = repo }
+    public func callAsFunction(chatId: String) -> AsyncThrowingStream<TypingIndicator, Error> {
+        repo.typingStream(chatId: chatId)
+    }
+}
+
+public struct SetTypingUseCase {
+    let repo: TypingRepository
+    public init(repo: TypingRepository) { self.repo = repo }
+    public func callAsFunction(chatId: String, userId: String, isTyping: Bool) async throws {
+        try await repo.setTyping(chatId: chatId, userId: userId, isTyping: isTyping)
+    }
+}

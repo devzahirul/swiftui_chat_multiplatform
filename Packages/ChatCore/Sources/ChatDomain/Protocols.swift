@@ -19,3 +19,15 @@ public enum ChatError: Error, Equatable {
     case network
     case unknown
 }
+
+// MARK: - Presence & Typing
+
+public protocol PresenceRepository {
+    func presenceStream(userId: String) -> AsyncThrowingStream<Presence, Error>
+    func setPresence(userId: String, isOnline: Bool) async throws
+}
+
+public protocol TypingRepository {
+    func typingStream(chatId: String) -> AsyncThrowingStream<TypingIndicator, Error>
+    func setTyping(chatId: String, userId: String, isTyping: Bool) async throws
+}

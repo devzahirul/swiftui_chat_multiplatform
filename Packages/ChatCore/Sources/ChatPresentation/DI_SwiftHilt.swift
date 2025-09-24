@@ -26,5 +26,26 @@ public enum ChatDIModules {
             GetLatestMessageUseCase(repo: r.resolve(ChatRepository.self))
         }
     }
+
+    // Optional presence/typing modules (apps register repos themselves)
+    public static func registerPresence(into c: Container, presenceRepo: PresenceRepository) {
+        c.provide(PresenceRepository.self, lifetime: .singleton) { _ in presenceRepo }
+        c.register(ObservePresenceUseCase.self, lifetime: .transient) { r in
+            ObservePresenceUseCase(repo: r.resolve(PresenceRepository.self))
+        }
+        c.register(UpdatePresenceUseCase.self, lifetime: .transient) { r in
+            UpdatePresenceUseCase(repo: r.resolve(PresenceRepository.self))
+        }
+    }
+
+    public static func registerTyping(into c: Container, typingRepo: TypingRepository) {
+        c.provide(TypingRepository.self, lifetime: .singleton) { _ in typingRepo }
+        c.register(ObserveTypingUseCase.self, lifetime: .transient) { r in
+            ObserveTypingUseCase(repo: r.resolve(TypingRepository.self))
+        }
+        c.register(SetTypingUseCase.self, lifetime: .transient) { r in
+            SetTypingUseCase(repo: r.resolve(TypingRepository.self))
+        }
+    }
 }
 #endif
