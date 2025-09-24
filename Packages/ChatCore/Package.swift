@@ -32,8 +32,8 @@ let package = Package(
         .target(name: "LoginData", dependencies: ["LoginDomain"], path: "Sources/LoginWithApple/LoginData"),
         .target(name: "LoginPresentation", dependencies: ["LoginDomain"], path: "Sources/LoginWithApple/LoginPresentation"),
         .target(name: "LoginUI", dependencies: ["LoginPresentation", "ChatDomain"], path: "Sources/LoginWithApple/LoginUI"),
-        // Umbrella target that re-exports the login modules
-        .target(name: "LoginWithApple", dependencies: ["LoginDomain", "LoginData", "LoginPresentation", "LoginUI"], path: "Sources/LoginWithApple"),
+        // Umbrella target that re-exports the login modules (separate folder to avoid overlap)
+        .target(name: "LoginWithApple", dependencies: ["LoginDomain", "LoginData", "LoginPresentation", "LoginUI"], path: "Sources/LoginWithApplePackage"),
         .testTarget(name: "ChatDomainTests", dependencies: ["ChatDomain", "ChatTestUtils", "ChatData"]),
         .testTarget(name: "ChatPresentationTests", dependencies: ["ChatPresentation", "ChatTestUtils", "ChatData"])    ]
 )
