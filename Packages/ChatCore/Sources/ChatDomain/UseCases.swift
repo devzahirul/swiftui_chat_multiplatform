@@ -24,3 +24,19 @@ public struct CreateChatUseCase {
         try await repo.createChat(members: members)
     }
 }
+
+public struct GetAllChatsUseCase {
+    let repo: ChatRepository
+    public init(repo: ChatRepository) { self.repo = repo }
+    public func callAsFunction() async throws -> [Chat] {
+        try await repo.getAllChats()
+    }
+}
+
+public struct GetLatestMessageUseCase {
+    let repo: ChatRepository
+    public init(repo: ChatRepository) { self.repo = repo }
+    public func callAsFunction(chatId: String) async throws -> Message? {
+        try await repo.getLatestMessage(chatId: chatId)
+    }
+}

@@ -15,14 +15,11 @@ let package = Package(
         .library(name: "ChatUI", targets: ["ChatUI"]),
         .library(name: "ChatTestUtils", targets: ["ChatTestUtils"])
     ],
-    dependencies: [
-        .package(url: "https://github.com/devzahirul/swift_hilt", from: "0.0.1")
-    ],
+    dependencies: [],
     targets: [
         .target(name: "ChatDomain", dependencies: []),
         .target(name: "ChatPresentation", dependencies: [
-            "ChatDomain",
-            .product(name: "SwiftHilt", package: "swift_hilt")
+            "ChatDomain"
         ]),
         .target(name: "ChatUI", dependencies: ["ChatDomain", "ChatPresentation"]),
         .target(name: "ChatTestUtils", dependencies: ["ChatDomain"], path: "Sources/ChatTestUtils"),

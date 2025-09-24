@@ -13,7 +13,8 @@ import SwiftHilt
 
 struct ContentView: View {
     private let currentUser = ChatUser(id: "me", displayName: "Me")
-    @State private var chatId: String?
+    @State private var selectedChat: Chat?
+    @State private var navigationPath = NavigationPath()
 
     init() {
         let c = Container()
@@ -22,25 +23,15 @@ struct ContentView: View {
     }
 
     var body: some View {
-        Group {
-            if let id = chatId {
-                ChatScreen(chatId: id, currentUser: currentUser)
-            } else {
-                VStack(spacing: 12) {
-                    ProgressView()
-                    Text("Preparing chat…")
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        NavigationStack(path: $navigationPath) {
+            ChatListScreen(currentUser: currentUser) { chat in
+                selectedChat = chat
+                navigationPath.append(chat.id)
             }
-        }
-        .onAppear {
-            if chatId == nil {
-                Task {
-                    let create: CreateChatUseCase = resolve()
-                    if let chat = try? await create(members: [currentUser]) {
-                        chatId = chat.id
-                    }
+            .navigationDestination(for: String.self) { chatId in
+                if let chat = selectedChat, chat.id == chatId {
+                    ChatScreen(chatId: chatId, currentUser: currentUser)
+                        .navigationBarTitleDisplayMode(.inline)
                 }
             }
         }
@@ -63,6 +54,39 @@ private struct ChatScreen: View {
     var body: some View {
         ChatView(viewModel: vm, currentUserId: currentUser.id)
             .onAppear { vm.start() }
+    }
+}
+
+private struct ChatListScreen: View {
+    let currentUser: ChatUser
+    let onChatSelected: (Chat) -> Void
+    @StateObject private var viewModel: ChatPresentation.ChatListViewModel
+
+    init(currentUser: ChatUser, onChatSelected: @escaping (Chat) -> Void) {
+        self.currentUser = currentUser
+        self.onChatSelected = onChatSelected
+        let getAllChats: GetAllChatsUseCase = resolve()
+        let getLatestMessage: GetLatestMessageUseCase = resolve()
+        _viewModel = StateObject(wrappedValue: ChatPresentation.ChatListViewModel(getAllChats: getAllChats, getLatestMessage: getLatestMessage))
+    }
+
+    var body: some View {
+        ChatUI.ChatListView(
+            viewModel: viewModel,
+            currentUser: currentUser,
+            onChatSelected: onChatSelected,
+            onNewChatTapped: {
+                Task {
+                    let create: CreateChatUseCase = resolve()
+                    if let newChat = try? await create(members: [currentUser]) {
+                        onChatSelected(newChat)
+                        await viewModel.loadChats()
+                    }
+                }
+            }
+        )
+        .navigationTitle("")
+        .navigationBarHidden(true)
     }
 }
 

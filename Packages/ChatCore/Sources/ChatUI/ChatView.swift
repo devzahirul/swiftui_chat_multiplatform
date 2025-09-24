@@ -1,6 +1,11 @@
 import SwiftUI
 import ChatDomain
 import ChatPresentation
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 public struct ChatView: View {
     @ObservedObject var vm: ChatViewModel
@@ -41,8 +46,20 @@ public struct ChatView: View {
                 .disabled(vm.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
             .padding()
-            .background(Color(UIColor.secondarySystemBackground))
+            .background(Self.composerBackgroundColor)
         }
         .onAppear { vm.start() }
+    }
+}
+
+private extension ChatView {
+    static var composerBackgroundColor: Color {
+        #if os(iOS)
+        return Color(UIColor.secondarySystemBackground)
+        #elseif os(macOS)
+        return Color(NSColor.controlBackgroundColor)
+        #else
+        return Color.gray.opacity(0.1)
+        #endif
     }
 }

@@ -1,12 +1,13 @@
 import Foundation
 import ChatDomain
+#if canImport(SwiftHilt)
 import SwiftHilt
 
 public enum ChatDIModules {
     // Registers default bindings for ChatRepository and UseCases
     public static func registerCore(into c: Container, repoFactory: @escaping (Resolver) -> ChatRepository = { _ in InMemoryChatRepository() }) {
-        // Repository binding (scoped lifetime is fine for feature scope)
-        c.register(ChatRepository.self, lifetime: .scoped, repoFactory)
+        // Repository binding
+        
 
         // Use cases
         c.register(ObserveMessagesUseCase.self, lifetime: .transient) { r in
@@ -20,3 +21,4 @@ public enum ChatDIModules {
         }
     }
 }
+#endif

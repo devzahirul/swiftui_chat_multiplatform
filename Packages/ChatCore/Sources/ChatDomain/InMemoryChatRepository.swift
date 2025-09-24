@@ -23,6 +23,18 @@ public final class InMemoryChatRepository: ChatRepository {
         return chat
     }
 
+    public func getAllChats() async throws -> [Chat] {
+        var list: [Chat] = []
+        queue.sync { list = Array(chats.values) }
+        return list.sorted(by: { $0.createdAt > $1.createdAt })
+    }
+
+    public func getLatestMessage(chatId: String) async throws -> Message? {
+        var last: Message?
+        queue.sync { last = messages[chatId]?.last }
+        return last
+    }
+
     public func messagesStream(chatId: String) -> AsyncThrowingStream<[Message], Error> {
         let id = UUID()
         return AsyncThrowingStream { continuation in

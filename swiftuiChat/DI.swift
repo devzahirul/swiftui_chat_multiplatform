@@ -46,4 +46,10 @@ func loadChatDependencies() {
     register(CreateChatUseCase.self, lifetime: .transient) { r in
         CreateChatUseCase(repo: r.resolve())
     }
+    register(GetAllChatsUseCase.self, lifetime: .transient) { r in
+        GetAllChatsUseCase(repo: r.resolve())
+    }
+    register(GetLatestMessageUseCase.self, lifetime: .transient) { r in
+        GetLatestMessageUseCase(repo: r.resolve())
+    }
 }
